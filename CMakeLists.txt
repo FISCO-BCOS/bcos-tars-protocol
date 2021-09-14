@@ -39,8 +39,8 @@ list(APPEND CMAKE_MODULE_PATH ${BCOS_TARS_PROTOCOL_CMAKE_DIR})
 #init hunter
 include(HunterGate)
 HunterGate(
-    URL "https://${URL_BASE}/FISCO-BCOS/hunter/archive/2131462b76f188cf22d909e40f9a34747981bb03.tar.gz"
-    SHA1 "cffb8d8845cac242d6e1c8c9d30e5f16b1092df3"
+    URL "https://${URL_BASE}/FISCO-BCOS/hunter/archive/e427ab73280d9488bca736c53b8a52284896c759.tar.gz"
+    SHA1 "cd5b639d31eb775a5adda5f4d4a19b027d97d174"
     FILEPATH "${BCOS_TARS_PROTOCOL_CMAKE_DIR}/config.cmake"
 )
 project(bcos-tars-protocol VERSION "3.0.0")
@@ -61,12 +61,13 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 # install dependencies
 include(InstallBcosFrameworkDependencies)
 hunter_add_package(tarscpp)
+find_package(tarscpp CONFIG REQUIRED)
 
 # for tars generator
 set(TARS_HEADER_DIR ${CMAKE_CURRENT_BINARY_DIR}/tars-generated)
 include_directories(${TARS_HEADER_DIR})
 
-set(BCOS_TARS_PROTOCOL_TARGET "tars-protocol")
+set(BCOS_TARS_PROTOCOL_TARGET "protocol-tars")
 add_subdirectory(bcos-tars-protocol)
 
 if (TESTS)
