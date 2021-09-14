@@ -1,0 +1,31 @@
+file(GLOB SRC_LIST "*.cpp")
+file(GLOB HEADERS "*.h")
+
+file(GLOB_RECURSE TARS_INPUT *.tars)
+# generate tars
+if (TARS_INPUT)
+    foreach(TARS_FILE ${TARS_INPUT})
+        get_filename_component(TARS_NAME ${TARS_FILE} NAME_WE)
+        get_filename_component(TARS_PATH ${TARS_FILE} PATH)
+
+        add_custom_command(
+            OUTPUT ${TARS_HEADER_DIR}/${TARS_NAME}.h
+            WORKING_DIRECTORY ${TARS_PATH}
+            COMMAND tarscpp::tars2cpp ${TARS_FILE} --dir=${TARS_HEADER_DIR}
+            COMMENT "tarscpp::tars2cpp ${TARS_FILE} --dir=${TARS_HEADER_DIR}"
+            DEPENDS tarscpp::tars2cpp ${TARS_FILE}
+        )
+        list(APPEND OUT_TARS_H_LIST ${TARS_HEADER_DIR}/${TARS_NAME}.h)
+    endforeach()
+endif()
+
+add_custom_target(bcostars ALL DEPENDS ${OUT_TARS_H_LIST})
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${OUT_TARS_H_LIST}")
+
+aux_source_directory(. SRC_LIST)
+add_library(${BCOS_TARS_PROTOCOL_TARGET} ${SRC_LIST} ${HEADERS})
+
+target_compile_options(${BCOS_TARS_PROTOCOL_TARGET} PRIVATE -Wno-error -Wno-unused-variable)
+
+find_package(tarscpp CONFIG REQUIRED)
+target_link_libraries(${BCOS_TARS_PROTOCOL_TARGET} PUBLIC bcos-framework::utilities bcos-framework::protocol bcos-framework::codec tarscpp::tarsutil tarscpp::tarsparse)
