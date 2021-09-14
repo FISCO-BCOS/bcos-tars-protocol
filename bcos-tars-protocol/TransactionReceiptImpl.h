@@ -73,7 +73,7 @@ public:
     void setInner(const bcostars::TransactionReceipt& inner) { *m_inner() = inner; }
     void setInner(bcostars::TransactionReceipt&& inner) { *m_inner() = std::move(inner); }
 
-    std::function<bcostars::TransactionReceipt*()> const& innerFunc() { return m_inner; }
+    std::function<bcostars::TransactionReceipt*()> const& innerGetter() { return m_inner; }
 
     void setLogEntries(std::vector<bcos::protocol::LogEntry> const& _logEntries)
     {

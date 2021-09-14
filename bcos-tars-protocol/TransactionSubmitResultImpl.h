@@ -53,7 +53,7 @@ public:
         {
             return *(reinterpret_cast<const bcos::crypto::HashType*>(m_inner->txHash.data()));
         }
-        return emptyHash;
+        return m_emptyHash;
     }
     bcos::crypto::HashType const& blockHash() const override
     {
@@ -61,7 +61,7 @@ public:
         {
             return *(reinterpret_cast<const bcos::crypto::HashType*>(m_inner->blockHash.data()));
         }
-        return emptyHash;
+        return m_emptyHash;
     }
 
     int64_t transactionIndex() const override { return m_inner->transactionIndex; }
@@ -84,11 +84,12 @@ public:
     void setInner(const bcostars::TransactionSubmitResult& result) { *m_inner = result; }
     void setInner(bcostars::TransactionSubmitResult&& result) { *m_inner = std::move(result); }
 
-    std::shared_ptr<bcostars::TransactionSubmitResult> inner() { return m_inner; }
+    std::shared_ptr<bcostars::TransactionSubmitResult> innerPointer() { return m_inner; }
 
 private:
     mutable bcos::protocol::NonceType m_nonce;
     bcos::crypto::CryptoSuite::Ptr m_cryptoSuite;
+    bcos::crypto::HashType m_emptyHash = bcos::crypto::HashType();
     std::shared_ptr<bcostars::TransactionSubmitResult> m_inner;
 };
 }  // namespace protocol

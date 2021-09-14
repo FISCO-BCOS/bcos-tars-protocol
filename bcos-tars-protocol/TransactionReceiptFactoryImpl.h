@@ -57,20 +57,20 @@ public:
     {
         auto transactionReceipt = std::make_shared<TransactionReceiptImpl>(m_cryptoSuite,
             [m_receipt = bcostars::TransactionReceipt()]() mutable { return &m_receipt; });
-        auto const& innerFunc = transactionReceipt->innerFunc();
+        auto const& inner = transactionReceipt->innerGetter();
         // required: version
-        innerFunc()->version = 0;
+        inner()->version = 0;
         // required: gasUsed
-        innerFunc()->gasUsed = boost::lexical_cast<std::string>(_gasUsed);
+        inner()->gasUsed = boost::lexical_cast<std::string>(_gasUsed);
         // optional: contractAddress
-        innerFunc()->contractAddress.assign(_contractAddress.begin(), _contractAddress.end());
+        inner()->contractAddress.assign(_contractAddress.begin(), _contractAddress.end());
         // required: status
-        innerFunc()->status = _status;
+        inner()->status = _status;
         // optional: output
-        innerFunc()->output.assign(_output.begin(), _output.end());
+        inner()->output.assign(_output.begin(), _output.end());
         transactionReceipt->setLogEntries(*_logEntries);
 
-        innerFunc()->blockNumber = _blockNumber;
+        inner()->blockNumber = _blockNumber;
         return transactionReceipt;
     }
 

@@ -34,7 +34,7 @@ public:
         bcos::crypto::HashType const& _txHash) override
     {
         auto result = std::make_shared<TransactionSubmitResultImpl>(m_cryptoSuite);
-        auto inner = result->inner();
+        auto inner = result->innerPointer();
         inner->txHash.assign(_txHash.begin(), _txHash.end());
         auto blockHash = _blockHeader->hash();
         inner->blockHash.assign(blockHash.begin(), blockHash.end());
@@ -46,6 +46,7 @@ public:
         bcos::crypto::HashType const& _txHash, int32_t _status) override
     {
         auto result = std::make_shared<TransactionSubmitResultImpl>(m_cryptoSuite);
+        auto inner = result->innerPointer();
         inner->txHash.assign(_txHash.begin(), _txHash.end());
         inner->status = _status;
 
