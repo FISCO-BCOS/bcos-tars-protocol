@@ -54,7 +54,7 @@ jobs:
         run: CC=/usr/bin/clang CXX=/usr/bin/clang++ cmake . -DTESTS=ON -DHUNTER_CONFIGURATION_TYPES=Debug
       - name: check commit
         if: ${{ runner.os == 'Linux' && github.base_ref != 'master' && github.event_name == 'pull_request' }}
-        run: bash cmake/scripts/shell/check-commit.sh 3000 "https://api.github.com/repos/FISCO-BCOS/bcos-tars-protocol"
+        run: bash bcos-cmake-scripts/shell/check-commit.sh 3000 "https://api.github.com/repos/FISCO-BCOS/bcos-tars-protocol"
       - name: compile
         run: make -j2
       - name: run test

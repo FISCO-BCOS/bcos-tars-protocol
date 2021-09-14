@@ -66,7 +66,7 @@ hunter_add_package(tarscpp)
 set(TARS_HEADER_DIR ${CMAKE_CURRENT_BINARY_DIR}/tars-generated)
 include_directories(${TARS_HEADER_DIR})
 
-set(BCOS_TARS_PROTOCOL_TARGET "bcos-tars-protocol")
+set(BCOS_TARS_PROTOCOL_TARGET "tars-protocol")
 add_subdirectory(bcos-tars-protocol)
 
 if (TESTS)
