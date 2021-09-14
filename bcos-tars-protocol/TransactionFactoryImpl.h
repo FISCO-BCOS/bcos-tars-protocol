@@ -60,7 +60,7 @@ public:
     {
         auto transaction = std::make_shared<bcostars::protocol::TransactionImpl>(m_cryptoSuite,
             [m_transaction = bcostars::Transaction()]() mutable { return &m_transaction; });
-        auto const& inner = transaction->innerFunc();
+        auto const& inner = transaction->innerGetter();
         inner()->data.version = _version;
         inner()->data.to.assign(_to.begin(), _to.end());
         inner()->data.input.assign(_input.begin(), _input.end());
@@ -83,8 +83,8 @@ public:
         auto sign = m_cryptoSuite->signatureImpl()->sign(keyPair, tx->hash(), true);
 
         auto tarsTx = std::dynamic_pointer_cast<bcostars::protocol::TransactionImpl>(tx);
-        auto const& innerFunc = tarsTx->innerFunc();
-        innerFunc()->signature.assign(sign->begin(), sign->end());
+        auto const& inner = tarsTx->innerGetter();
+        inner()->signature.assign(sign->begin(), sign->end());
 
         return tx;
     }

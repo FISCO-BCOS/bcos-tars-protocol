@@ -75,7 +75,7 @@ public:
     void setInner(const bcostars::Transaction& inner) { *m_inner() = inner; }
 
     void setInner(bcostars::Transaction&& inner) { *m_inner() = std::move(inner); }
-    std::function<bcostars::Transaction*()> const& innerFunc() { return m_inner; }
+    std::function<bcostars::Transaction*()> const& innerGetter() { return m_inner; }
 
 private:
     std::function<bcostars::Transaction*()> m_inner;
