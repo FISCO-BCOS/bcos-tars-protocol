@@ -1,7 +1,12 @@
 
 set(DESTINATION_INCLUDE_DIR "${CMAKE_INSTALL_INCLUDEDIR}")
 install(
-    DIRECTORY "bcos-tars-service"
+    DIRECTORY "bcos-tars-protocol"
     DESTINATION "${DESTINATION_INCLUDE_DIR}"
+    FILES_MATCHING PATTERN "*.h"
+)
+install(
+    DIRECTORY ${TARS_HEADER_DIR}/
+    DESTINATION "${DESTINATION_INCLUDE_DIR}/bcos-tars-protocol"
     FILES_MATCHING PATTERN "*.h"
 )
