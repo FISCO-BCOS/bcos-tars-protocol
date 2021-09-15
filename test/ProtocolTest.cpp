@@ -1,15 +1,15 @@
 #include "bcos-tars-protocol/BlockFactoryImpl.h"
+#include "bcos-tars-protocol/BlockHeaderFactoryImpl.h"
 #include "bcos-tars-protocol/TransactionFactoryImpl.h"
 #include "bcos-tars-protocol/TransactionReceiptFactoryImpl.h"
-#include "bcos-tars-protocol/BlockHeaderFactoryImpl.h"
 #include <bcos-framework/interfaces/crypto/CommonType.h>
 #include <bcos-framework/interfaces/crypto/CryptoSuite.h>
+#include <bcos-framework/interfaces/protocol/ProtocolTypeDef.h>
 #include <bcos-framework/interfaces/protocol/Transaction.h>
 #include <bcos-framework/libprotocol/LogEntry.h>
 #include <bcos-framework/libutilities/DataConvertUtility.h>
 #include <bcos-framework/testutils/crypto/HashImpl.h>
 #include <bcos-framework/testutils/crypto/SignatureImpl.h>
-#include <bcos-framework/interfaces/protocol/ProtocolTypeDef.h>
 #include <boost/test/tools/old/interface.hpp>
 #include <boost/test/unit_test.hpp>
 #include <gsl/span>
@@ -187,7 +187,9 @@ BOOST_AUTO_TEST_CASE(block)
         auto transaction = transactionFactory->createTransaction(
             117, to, input, nonce, i, "testChain", "testGroup", 1000);
         block->appendTransaction(transaction);
-        block->appendTransactionHash(transaction->hash());
+        auto txMetaData = blockFactory->createTransactionMetaData(
+            transaction->hash(), transaction->hash().abridged());
+        block->appendTransactionMetaData(txMetaData);
 
         auto receipt = transactionReceiptFactory->createReceipt(1000, contractAddress,
             std::make_shared<std::vector<bcos::protocol::LogEntry>>(*logEntries), 50, output, i);
@@ -223,6 +225,9 @@ BOOST_AUTO_TEST_CASE(block)
     BOOST_CHECK_EQUAL(block->blockType(), decodedBlock->blockType());
 
     BOOST_CHECK_EQUAL(block->transactionsSize(), decodedBlock->transactionsSize());
+    BOOST_CHECK_EQUAL(block->transactionsHashSize(), decodedBlock->transactionsHashSize());
+    BOOST_CHECK_EQUAL(block->transactionsMetaDataSize(), decodedBlock->transactionsMetaDataSize());
+    std::cout << "transactionsMetaDataSize:" << block->transactionsMetaDataSize() << std::endl;
     for (size_t i = 0; i < block->transactionsSize(); ++i)
     {
         {
@@ -244,6 +249,13 @@ BOOST_AUTO_TEST_CASE(block)
             BOOST_CHECK_EQUAL(lhs->chainId(), rhs->chainId());
             BOOST_CHECK_EQUAL(lhs->groupId(), rhs->groupId());
             BOOST_CHECK_EQUAL(lhs->importTime(), rhs->importTime());
+
+            // check the txMetaData
+            BOOST_CHECK_EQUAL(block->transactionMetaData(i)->hash(),
+                decodedBlock->transactionMetaData(i)->hash());
+            BOOST_CHECK_EQUAL(
+                block->transactionMetaData(i)->to(), decodedBlock->transactionMetaData(i)->to());
+            BOOST_CHECK_EQUAL(block->transactionHash(i), block->transactionHash(i));
         }
 
         {

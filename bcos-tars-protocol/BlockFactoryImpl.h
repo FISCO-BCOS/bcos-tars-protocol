@@ -76,6 +76,17 @@ public:
         return m_receiptFactory;
     }
 
+    bcos::protocol::TransactionMetaData::Ptr createTransactionMetaData() override
+    {
+        return std::make_shared<bcostars::protocol::TransactionMetaDataImpl>();
+    }
+
+    bcos::protocol::TransactionMetaData::Ptr createTransactionMetaData(
+        bcos::crypto::HashType const _hash, std::string const& _to) override
+    {
+        return std::make_shared<bcostars::protocol::TransactionMetaDataImpl>(_hash, _to);
+    }
+
 private:
     bcos::crypto::CryptoSuite::Ptr m_cryptoSuite;
     bcos::protocol::BlockHeaderFactory::Ptr m_blockHeaderFactory;

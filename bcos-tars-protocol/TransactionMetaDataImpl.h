@@ -19,7 +19,9 @@
  * @date: 2021-09-07
  */
 #pragma once
+#include "Block.h"
 #include <bcos-framework/interfaces/crypto/KeyInterface.h>
+#include <bcos-framework/interfaces/protocol/TransactionMetaData.h>
 
 namespace bcostars
 {
@@ -52,8 +54,8 @@ public:
         auto const& hash = m_rawTxMetaData->hash;
         if (hash.size() >= bcos::crypto::HashType::size)
         {
-            m_hash =
-                bcos::crypto::HashType((byte const*)hash.c_str(), bcos::crypto::HashType::size);
+            m_hash = bcos::crypto::HashType(
+                reinterpret_cast<const bcos::byte*>(hash.data()), bcos::crypto::HashType::size);
         }
         return m_hash;
     }
