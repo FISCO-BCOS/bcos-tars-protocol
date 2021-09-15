@@ -27,14 +27,18 @@ module bcostars {
         13 require vector<Signature> signatureList;
         14 require vector<long> consensusWeights;
     };
-
+    struct TransactionMetaData
+    {
+        1 require vector<byte> hash;
+        2 optional string to;
+    };
     struct Block {
         1 optional int version;
         2 optional int type;
         3 optional BlockHeader blockHeader;
         4 optional vector<Transaction> transactions;
         5 optional vector<TransactionReceipt> receipts;
-        6 optional vector<vector<byte>> transactionsHash;
+        6 optional vector<TransactionMetaData> transactionsMetaData;
         7 optional vector<vector<byte>> receiptsHash;
         8 optional vector<string> nonceList;
     };

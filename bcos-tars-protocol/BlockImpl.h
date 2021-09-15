@@ -23,6 +23,7 @@
 #include "BlockHeaderImpl.h"
 #include "Common.h"
 #include "TransactionImpl.h"
+#include "TransactionMetaDataImpl.h"
 #include "TransactionReceiptImpl.h"
 #include <bcos-framework/interfaces/crypto/CryptoSuite.h>
 #include <bcos-framework/interfaces/protocol/Block.h>
@@ -65,7 +66,8 @@ public:
     bcos::protocol::Transaction::ConstPtr transaction(size_t _index) const override;
     bcos::protocol::TransactionReceipt::ConstPtr receipt(size_t _index) const override;
 
-    bcos::crypto::HashType const& transactionHash(size_t _index) const override;
+    // get transaction metaData
+    bcos::protocol::TransactionMetaData::ConstPtr transactionMetaData(size_t _index) const override;
     void setBlockType(bcos::protocol::BlockType _blockType) override
     {
         m_inner->type = (int32_t)_blockType;
@@ -88,14 +90,11 @@ public:
     void setReceipt(size_t _index, bcos::protocol::TransactionReceipt::Ptr _receipt) override;
     void appendReceipt(bcos::protocol::TransactionReceipt::Ptr _receipt) override;
 
-    void appendTransactionHash(bcos::crypto::HashType const& _txHash) override
-    {
-        m_inner->transactionsHash.emplace_back(_txHash.begin(), _txHash.end());
-    }
+    void appendTransactionMetaData(bcos::protocol::TransactionMetaData::Ptr _txMetaData) override;
 
     // get transactions size
     size_t transactionsSize() const override { return m_inner->transactions.size(); }
-    size_t transactionsHashSize() const override { return m_inner->transactionsHash.size(); }
+    size_t transactionsMetaDataSize() const override;
     // get receipts size
     size_t receiptsSize() const override { return m_inner->receipts.size(); }
 

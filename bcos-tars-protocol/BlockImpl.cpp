@@ -55,12 +55,6 @@ bcos::protocol::TransactionReceipt::ConstPtr BlockImpl::receipt(size_t _index) c
         [m_inner = this->m_inner, _index]() { return &(m_inner->receipts[_index]); });
 };
 
-bcos::crypto::HashType const& BlockImpl::transactionHash(size_t _index) const
-{
-    return *(
-        reinterpret_cast<const bcos::crypto::HashType*>(m_inner->transactionsHash[_index].data()));
-}
-
 void BlockImpl::setBlockHeader(bcos::protocol::BlockHeader::Ptr _blockHeader)
 {
     if (_blockHeader)
@@ -130,4 +124,27 @@ bcos::protocol::NonceList const& BlockImpl::nonceList() const
     }
 
     return m_nonceList;
+}
+
+bcos::protocol::TransactionMetaData::ConstPtr BlockImpl::transactionMetaData(size_t _index) const
+{
+    if (transactionsMetaDataSize() <= _index)
+    {
+        return nullptr;
+    }
+    auto inner = std::const_pointer_cast<bcostars::Block>(m_inner);
+    auto rawTxMetaDataPointer = &(m_inner->transactionsMetaData[_index]);
+    return std::make_shared<bcostars::protocol::TransactionMetaDataImpl>(rawTxMetaDataPointer);
+}
+
+void BlockImpl::appendTransactionMetaData(bcos::protocol::TransactionMetaData::Ptr _txMetaData)
+{
+    auto txMetaDataImpl =
+        std::dynamic_pointer_cast<bcostars::protocol::TransactionMetaDataImpl>(_txMetaData);
+    m_inner->transactionsMetaData.emplace_back(*(txMetaDataImpl->rawTxMetaData()));
+}
+
+size_t BlockImpl::transactionsMetaDataSize() const
+{
+    return m_inner->transactionsMetaData.size();
 }
