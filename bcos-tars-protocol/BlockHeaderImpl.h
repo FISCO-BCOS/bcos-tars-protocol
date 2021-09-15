@@ -22,8 +22,8 @@
 #pragma once
 #include "Block.h"
 #include "Common.h"
-#include "bcos-framework/interfaces/crypto/CryptoSuite.h"
 #include <bcos-framework/interfaces/crypto/CommonType.h>
+#include <bcos-framework/interfaces/crypto/CryptoSuite.h>
 #include <bcos-framework/interfaces/protocol/BlockHeader.h>
 #include <bcos-framework/interfaces/protocol/ProtocolTypeDef.h>
 #include <gsl/span>
