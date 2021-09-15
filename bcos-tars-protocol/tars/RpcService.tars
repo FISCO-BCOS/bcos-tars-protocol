@@ -1,4 +1,4 @@
-#include "Common.tars"
+#include "CommonProtocol.tars"
 
 module bcostars {
     interface RpcService {

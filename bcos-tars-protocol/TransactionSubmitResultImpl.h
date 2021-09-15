@@ -26,8 +26,8 @@
 #include "TransactionReceiptImpl.h"
 #include "TransactionSubmitResult.h"
 #include "interfaces/crypto/CommonType.h"
-#include "libutilities/Common.h"
 #include <bcos-framework/interfaces/protocol/TransactionSubmitResult.h>
+#include <bcos-framework/libutilities/Common.h>
 #include <boost/lexical_cast.hpp>
 #include <memory>
 

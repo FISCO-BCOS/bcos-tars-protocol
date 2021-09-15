@@ -1,4 +1,4 @@
-#include "Common.tars"
+#include "CommonProtocol.tars"
 #include "Block.tars"
 
 module bcostars {
