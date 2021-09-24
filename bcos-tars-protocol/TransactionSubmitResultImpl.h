@@ -69,7 +69,7 @@ public:
     {
         m_inner->nonce = boost::lexical_cast<std::string>(_nonce);
     }
-    bcos::protocol::NonceType const& nonce() override
+    bcos::protocol::NonceType const& nonce() const override
     {
         if (!m_inner->nonce.empty())
         {
