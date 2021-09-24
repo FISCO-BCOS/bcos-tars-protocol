@@ -62,7 +62,10 @@ public:
     }
 
     bcos::protocol::BlockHeader::Ptr blockHeader() override { return m_blockHeader; };
-
+    bcos::protocol::BlockHeader::ConstPtr blockHeaderConst() const override
+    {
+        return m_blockHeader;
+    }
     bcos::protocol::Transaction::ConstPtr transaction(size_t _index) const override;
     bcos::protocol::TransactionReceipt::ConstPtr receipt(size_t _index) const override;
 

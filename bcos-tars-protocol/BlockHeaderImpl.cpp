@@ -109,7 +109,7 @@ bcos::crypto::HashType const& BlockHeaderImpl::receiptsRoot() const
     return bcostars::protocol::emptyHash;
 }
 
-bcos::u256 const& BlockHeaderImpl::gasUsed()
+bcos::u256 const& BlockHeaderImpl::gasUsed() const
 {
     if (!m_inner()->gasUsed.empty())
     {

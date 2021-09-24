@@ -56,9 +56,9 @@ public:
     bcos::crypto::HashType const& stateRoot() const override;
     bcos::crypto::HashType const& receiptsRoot() const override;
     bcos::protocol::BlockNumber number() const override { return m_inner()->blockNumber; }
-    bcos::u256 const& gasUsed() override;
-    int64_t timestamp() override { return m_inner()->timestamp; }
-    int64_t sealer() override { return m_inner()->sealer; }
+    bcos::u256 const& gasUsed() const override;
+    int64_t timestamp() const override { return m_inner()->timestamp; }
+    int64_t sealer() const override { return m_inner()->sealer; }
 
     gsl::span<const bcos::bytes> sealerList() const override
     {
