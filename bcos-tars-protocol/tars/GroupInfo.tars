@@ -5,7 +5,7 @@ struct ChainNodeInfo
     1 require string nodeName;
     2 require int nodeType;
     3 require int status;
-    4 optional iniConfig;
+    4 optional string iniConfig;
     5 optional vector<byte> privateKey;
     6 optional map<string, string> deployInfo;
 };

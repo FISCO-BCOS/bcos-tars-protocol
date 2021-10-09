@@ -19,7 +19,7 @@
  */
 
 #pragma once
-
+#include "Common.h"
 #include "ErrorConverter.h"
 #include "RpcService.h"
 #include <bcos-framework/interfaces/amop/AMOPInterface.h>
@@ -104,10 +104,29 @@ public:
         m_proxy->async_asyncNotifyAmopNodeIDs(new Callback(_callback), encodedNodeIDs);
     }
 
-    // TODO: implement this
-    void asyncNotifyGroupInfo(
-        bcos::group::GroupInfo::Ptr _groupInfo, std::function<void(bcos::Error::Ptr&&)>) override
-    {}
+    void asyncNotifyGroupInfo(bcos::group::GroupInfo::Ptr _groupInfo,
+        std::function<void(bcos::Error::Ptr&&)> _callback) override
+    {
+        class Callback : public bcostars::RpcServicePrxCallback
+        {
+        public:
+            Callback(std::function<void(bcos::Error::Ptr&&)> callback) : m_callback(callback) {}
+
+            void callback_asyncNotifyGroupInfo(const bcostars::Error& ret) override
+            {
+                m_callback(toBcosError(ret));
+            }
+            void callback_asyncNotifyGroupInfo_exception(tars::Int32 ret) override
+            {
+                m_callback(toBcosError(ret));
+            }
+
+        private:
+            std::function<void(bcos::Error::Ptr&&)> m_callback;
+        };
+        auto tarsGroupInfo = toTarsGroupInfo(_groupInfo);
+        m_proxy->async_asyncNotifyGroupInfo(new Callback(_callback), tarsGroupInfo);
+    }
 
 protected:
     void start() override {}
