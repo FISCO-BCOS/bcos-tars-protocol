@@ -1,0 +1,21 @@
+module bcostars
+{
+struct ChainNodeInfo
+{
+    1 require string nodeName;
+    2 require int nodeType;
+    3 require int status;
+    4 optional iniConfig;
+    5 optional vector<byte> privateKey;
+    6 optional map<string, string> deployInfo;
+};
+struct GroupInfo
+{
+    1 require string chainID;
+    2 require string groupID;
+    3 require int status;
+    4 require vector<ChainNodeInfo> nodeList;
+    5 optional string genesisConfig;
+    6 optional string iniConfig;
+};
+};
