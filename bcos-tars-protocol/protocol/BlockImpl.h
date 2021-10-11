@@ -19,12 +19,12 @@
  * @date 2021-04-20
  */
 #pragma once
-#include "Block.h"
 #include "BlockHeaderImpl.h"
-#include "Common.h"
 #include "TransactionImpl.h"
 #include "TransactionMetaDataImpl.h"
 #include "TransactionReceiptImpl.h"
+#include "bcos-tars-protocol/Common.h"
+#include "bcos-tars-protocol/tars/Block.h"
 #include <bcos-framework/interfaces/crypto/CryptoSuite.h>
 #include <bcos-framework/interfaces/protocol/Block.h>
 #include <bcos-framework/interfaces/protocol/BlockHeader.h>

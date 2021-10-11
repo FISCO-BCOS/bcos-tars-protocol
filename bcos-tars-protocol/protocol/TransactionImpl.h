@@ -20,8 +20,8 @@
  */
 
 #pragma once
-#include "Common.h"
-#include "Transaction.h"
+#include "bcos-tars-protocol/Common.h"
+#include "bcos-tars-protocol/tars/Transaction.h"
 #include <bcos-framework/interfaces/crypto/CommonType.h>
 #include <bcos-framework/interfaces/protocol/Transaction.h>
 #include <bcos-framework/libutilities/Common.h>

@@ -19,7 +19,7 @@
  * @date: 2021-09-07
  */
 #pragma once
-#include "Block.h"
+#include "bcos-tars-protocol/tars/Block.h"
 #include <bcos-framework/interfaces/crypto/KeyInterface.h>
 #include <bcos-framework/interfaces/protocol/TransactionMetaData.h>
 
@@ -32,17 +32,29 @@ class TransactionMetaDataImpl : public bcos::protocol::TransactionMetaData
 public:
     using Ptr = std::shared_ptr<TransactionMetaDataImpl>;
     using ConstPtr = std::shared_ptr<const TransactionMetaDataImpl>;
-    TransactionMetaDataImpl() : m_rawTxMetaData(new bcostars::TransactionMetaData()) {}
-    TransactionMetaDataImpl(bcos::crypto::HashType const _hash, std::string const& _to)
+    TransactionMetaDataImpl() : m_rawTxMetaData(std::make_shared<bcostars::TransactionMetaData>())
+    {}
+    TransactionMetaDataImpl(bcos::crypto::HashType const& _hash, std::string const& _to)
       : TransactionMetaDataImpl()
     {
         setHash(_hash);
         setTo(_to);
     }
 
-    explicit TransactionMetaDataImpl(bcostars::TransactionMetaData* _txMetaData)
-      : m_rawTxMetaData(_txMetaData)
-    {}
+    explicit TransactionMetaDataImpl(bcostars::TransactionMetaData const& _txMetaData)
+      : TransactionMetaDataImpl()
+    {
+        bcos::crypto::HashType hashData;
+        if (_txMetaData.hash.size() >= bcos::crypto::HashType::size)
+        {
+            hashData =
+                bcos::crypto::HashType(reinterpret_cast<const bcos::byte*>(_txMetaData.hash.data()),
+                    bcos::crypto::HashType::size);
+        }
+        setHash(hashData);
+        setTo(_txMetaData.to);
+    }
+
     ~TransactionMetaDataImpl() override {}
 
     bcos::crypto::HashType const& hash() const override
@@ -69,10 +81,10 @@ public:
     }
     void setTo(std::string const& _to) override { m_rawTxMetaData->to = _to; }
 
-    bcostars::TransactionMetaData* rawTxMetaData() { return m_rawTxMetaData; }
+    std::shared_ptr<bcostars::TransactionMetaData> rawTxMetaData() { return m_rawTxMetaData; }
 
 private:
-    bcostars::TransactionMetaData* m_rawTxMetaData;
+    std::shared_ptr<bcostars::TransactionMetaData> m_rawTxMetaData;
     mutable bcos::crypto::HashType m_hash = bcos::crypto::HashType();
 };
 }  // namespace protocol

@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include "ExecutionResult.h"
 #include "TransactionReceiptImpl.h"
+#include "bcos-tars-protocol/tars/ExecutionResult.h"
 #include <bcos-framework/interfaces/protocol/ExecutionResult.h>
 #include <bcos-framework/libutilities/Common.h>
 

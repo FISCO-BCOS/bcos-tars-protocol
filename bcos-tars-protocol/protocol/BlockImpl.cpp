@@ -132,9 +132,8 @@ bcos::protocol::TransactionMetaData::ConstPtr BlockImpl::transactionMetaData(siz
     {
         return nullptr;
     }
-    auto inner = std::const_pointer_cast<bcostars::Block>(m_inner);
-    auto rawTxMetaDataPointer = &(m_inner->transactionsMetaData[_index]);
-    return std::make_shared<bcostars::protocol::TransactionMetaDataImpl>(rawTxMetaDataPointer);
+    return std::make_shared<bcostars::protocol::TransactionMetaDataImpl>(
+        m_inner->transactionsMetaData[_index]);
 }
 
 void BlockImpl::appendTransactionMetaData(bcos::protocol::TransactionMetaData::Ptr _txMetaData)
