@@ -1,12 +1,13 @@
 #include "CommonProtocol.tars"
 #include "Transaction.tars"
+#include "Block.tars"
 #include "TransactionSubmitResult.tars"
 #include "LedgerConfig.tars"
 
 module bcostars {
     interface TxPoolService {
         Error asyncSubmit(vector<byte> tx, out TransactionSubmitResult result);
-        Error asyncSealTxs(long txsLimit, vector<vector<byte>> avoidTxs, out vector<vector<byte>> return1, out vector<vector<byte>> return2);
+        Error asyncSealTxs(long txsLimit, vector<vector<byte>> avoidTxs, out Block txsList, out Block sysTxsList);
         Error asyncMarkTxs(vector<vector<byte>> txHashs, bool sealedFlag, long batchId, vector<byte> batchHash);
         Error asyncVerifyBlock(vector<byte> generatedNodeID, vector<byte> block, out bool result);
         Error asyncFillBlock(vector<vector<byte>> txHashs, out vector<Transaction> filled);

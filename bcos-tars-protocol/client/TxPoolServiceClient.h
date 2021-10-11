@@ -1,11 +1,13 @@
 #pragma once
 
 #include "bcos-tars-protocol/ErrorConverter.h"
+#include "bcos-tars-protocol/protocol/BlockImpl.h"
 #include "bcos-tars-protocol/protocol/TransactionImpl.h"
-#include "bcos-tars-protocol/protocol/TransactionSubmitResult.h"
 #include "bcos-tars-protocol/protocol/TransactionSubmitResultImpl.h"
 #include "bcos-tars-protocol/tars/Transaction.h"
+#include "bcos-tars-protocol/tars/TransactionSubmitResult.h"
 #include "bcos-tars-protocol/tars/TxPoolService.h"
+#include <bcos-framework/interfaces/protocol/BlockFactory.h>
 #include <bcos-framework/interfaces/txpool/TxPoolInterface.h>
 #include <bcos-framework/libutilities/Common.h>
 #include <memory>
@@ -15,9 +17,10 @@ namespace bcostars
 class TxPoolServiceClient : public bcos::txpool::TxPoolInterface
 {
 public:
-    TxPoolServiceClient(
-        bcostars::TxPoolServicePrx _proxy, bcos::crypto::CryptoSuite::Ptr _cryptoSuite)
-      : m_proxy(_proxy), m_cryptoSuite(_cryptoSuite)
+    TxPoolServiceClient(bcostars::TxPoolServicePrx _proxy,
+        bcos::crypto::CryptoSuite::Ptr _cryptoSuite,
+        bcos::protocol::BlockFactory::Ptr _blockFactory)
+      : m_proxy(_proxy), m_cryptoSuite(_cryptoSuite), m_blockFactory(_blockFactory)
     {}
     ~TxPoolServiceClient() override {}
 
@@ -55,38 +58,32 @@ public:
     }
 
     void asyncSealTxs(size_t _txsLimit, bcos::txpool::TxsHashSetPtr _avoidTxs,
-        std::function<void(bcos::Error::Ptr, bcos::crypto::HashListPtr, bcos::crypto::HashListPtr)>
+        std::function<void(
+            bcos::Error::Ptr, bcos::protocol::Block::Ptr, bcos::protocol::Block::Ptr)>
             _sealCallback) override
     {
         class Callback : public bcostars::TxPoolServicePrxCallback
         {
         public:
-            Callback(std::function<void(
-                    bcos::Error::Ptr, bcos::crypto::HashListPtr, bcos::crypto::HashListPtr)>
+            Callback(bcos::protocol::BlockFactory::Ptr _blockFactory,
+                std::function<void(
+                    bcos::Error::Ptr, bcos::protocol::Block::Ptr, bcos::protocol::Block::Ptr)>
                     callback)
-              : m_callback(callback)
+              : m_blockFactory(_blockFactory), m_callback(callback)
             {}
 
-            void callback_asyncSealTxs(const bcostars::Error& ret,
-                const vector<vector<tars::Char>>& return1,
-                const vector<vector<tars::Char>>& return2) override
+            void callback_asyncSealTxs(const bcostars::Error& ret, const bcostars::Block& _txsList,
+                const bcostars::Block& _sysTxList) override
             {
-                auto list1 = std::make_shared<bcos::crypto::HashList>();
-                for (auto& it : return1)
-                {
-                    bcos::crypto::HashType tmp;
-                    list1->push_back(bcos::crypto::HashType(
-                        bcos::bytesConstRef((bcos::byte*)it.data(), it.size())));
-                }
+                auto txsList = m_blockFactory->createBlock();
+                std::dynamic_pointer_cast<bcostars::protocol::BlockImpl>(txsList)->setInner(
+                    std::move(*const_cast<bcostars::Block*>(&_txsList)));
 
-                auto list2 = std::make_shared<bcos::crypto::HashList>();
-                for (auto& it : return2)
-                {
-                    list2->push_back(bcos::crypto::HashType(
-                        bcos::bytesConstRef((bcos::byte*)it.data(), it.size())));
-                }
+                auto sysTxList = m_blockFactory->createBlock();
+                std::dynamic_pointer_cast<bcostars::protocol::BlockImpl>(sysTxList)->setInner(
+                    std::move(*const_cast<bcostars::Block*>(&_sysTxList)));
 
-                m_callback(toBcosError(ret), list1, list2);
+                m_callback(toBcosError(ret), txsList, sysTxList);
             }
 
             void callback_asyncSealTxs_exception(tars::Int32 ret) override
@@ -95,8 +92,9 @@ public:
             }
 
         private:
+            bcos::protocol::BlockFactory::Ptr m_blockFactory;
             std::function<void(
-                bcos::Error::Ptr, bcos::crypto::HashListPtr, bcos::crypto::HashListPtr)>
+                bcos::Error::Ptr, bcos::protocol::Block::Ptr, bcos::protocol::Block::Ptr)>
                 m_callback;
         };
 
@@ -109,7 +107,8 @@ public:
             }
         }
 
-        m_proxy->async_asyncSealTxs(new Callback(_sealCallback), _txsLimit, tarsAvoidTxs);
+        m_proxy->async_asyncSealTxs(
+            new Callback(m_blockFactory, _sealCallback), _txsLimit, tarsAvoidTxs);
     }
 
     void asyncMarkTxs(bcos::crypto::HashListPtr _txsHash, bool _sealedFlag,
@@ -453,6 +452,7 @@ protected:
 private:
     bcostars::TxPoolServicePrx m_proxy;
     bcos::crypto::CryptoSuite::Ptr m_cryptoSuite;
+    bcos::protocol::BlockFactory::Ptr m_blockFactory;
 };
 
 }  // namespace bcostars
