@@ -20,6 +20,9 @@ endif()
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${OUT_TARS_H_LIST}")
 
+aux_source_directory(./protocol SRC_LIST)
+aux_source_directory(./client SRC_LIST)
+
 add_library(${BCOS_TARS_PROTOCOL_TARGET} ${SRC_LIST} ${HEADERS} ${OUT_TARS_H_LIST})
 
 target_compile_options(${BCOS_TARS_PROTOCOL_TARGET} PRIVATE -Wno-error -Wno-unused-variable)

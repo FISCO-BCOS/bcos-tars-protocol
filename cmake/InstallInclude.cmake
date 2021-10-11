@@ -7,6 +7,6 @@ install(
 )
 install(
     DIRECTORY ${TARS_HEADER_DIR}/
-    DESTINATION "${DESTINATION_INCLUDE_DIR}/bcos-tars-protocol"
+    DESTINATION "${DESTINATION_INCLUDE_DIR}/bcos-tars-protocol/tars"
     FILES_MATCHING PATTERN "*.h"
 )

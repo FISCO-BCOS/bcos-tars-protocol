@@ -1,7 +1,7 @@
-#include "bcos-tars-protocol/BlockFactoryImpl.h"
-#include "bcos-tars-protocol/BlockHeaderFactoryImpl.h"
-#include "bcos-tars-protocol/TransactionFactoryImpl.h"
-#include "bcos-tars-protocol/TransactionReceiptFactoryImpl.h"
+#include "bcos-tars-protocol/protocol/BlockFactoryImpl.h"
+#include "bcos-tars-protocol/protocol/BlockHeaderFactoryImpl.h"
+#include "bcos-tars-protocol/protocol/TransactionFactoryImpl.h"
+#include "bcos-tars-protocol/protocol/TransactionReceiptFactoryImpl.h"
 #include <bcos-framework/interfaces/crypto/CommonType.h>
 #include <bcos-framework/interfaces/crypto/CryptoSuite.h>
 #include <bcos-framework/interfaces/protocol/ProtocolTypeDef.h>

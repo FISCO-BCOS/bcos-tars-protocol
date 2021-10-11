@@ -21,9 +21,9 @@
 
 #pragma once
 
-#include "ErrorConverter.h"
-#include "PBFTService.h"
 #include "bcos-framework/interfaces/sealer/SealerInterface.h"
+#include "bcos-tars-protocol/ErrorConverter.h"
+#include "bcos-tars-protocol/tars/PBFTService.h"
 #include <bcos-framework/interfaces/consensus/ConsensusInterface.h>
 #include <bcos-framework/interfaces/sync/BlockSyncInterface.h>
 

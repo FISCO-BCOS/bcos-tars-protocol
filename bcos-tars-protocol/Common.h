@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include "GroupInfo.h"
-#include "LedgerConfig.h"
+#include "bcos-tars-protocol/tars/GroupInfo.h"
+#include "bcos-tars-protocol/tars/LedgerConfig.h"
 #include <bcos-framework/interfaces/consensus/ConsensusNode.h>
 #include <bcos-framework/interfaces/crypto/Hash.h>
 #include <bcos-framework/interfaces/crypto/KeyFactory.h>

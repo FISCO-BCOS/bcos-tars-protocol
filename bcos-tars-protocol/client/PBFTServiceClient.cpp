@@ -20,9 +20,8 @@
  */
 
 #include "PBFTServiceClient.h"
-#include "PBFTService/Common.h"
-#include <bcos-tars-protocol/BlockFactoryImpl.h>
-
+#include "bcos-tars-protocol/Common.h"
+#include "bcos-tars-protocol/protocol/BlockFactoryImpl.h"
 using namespace bcostars;
 
 void PBFTServiceClient::asyncSubmitProposal(bool _containSysTxs, bcos::bytesConstRef _proposalData,
@@ -99,8 +98,8 @@ void PBFTServiceClient::asyncNotifyNewBlock(
 }
 
 // called by frontService to dispatch message
-void PBFTServiceClient::asyncNotifyConsensusMessage(bcos::Error::Ptr _error,
-    std::string const& _uuid, bcos::crypto::NodeIDPtr _nodeID, bcos::bytesConstRef _data,
+void PBFTServiceClient::asyncNotifyConsensusMessage(bcos::Error::Ptr, std::string const& _uuid,
+    bcos::crypto::NodeIDPtr _nodeID, bcos::bytesConstRef _data,
     std::function<void(bcos::Error::Ptr _error)> _onRecv)
 {
     auto nodeIDData = _nodeID->data();

@@ -19,7 +19,7 @@
  * @date: 2021-09-07
  */
 #pragma once
-#include "Block.h"
+#include "bcos-tars-protocol/tars/Block.h"
 #include <bcos-framework/interfaces/crypto/KeyInterface.h>
 #include <bcos-framework/interfaces/protocol/TransactionMetaData.h>
 
