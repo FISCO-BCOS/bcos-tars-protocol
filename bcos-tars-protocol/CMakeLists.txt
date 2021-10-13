@@ -26,4 +26,4 @@ aux_source_directory(./client SRC_LIST)
 add_library(${BCOS_TARS_PROTOCOL_TARGET} ${SRC_LIST} ${HEADERS} ${OUT_TARS_H_LIST})
 
 target_compile_options(${BCOS_TARS_PROTOCOL_TARGET} PRIVATE -Wno-error -Wno-unused-variable)
-target_link_libraries(${BCOS_TARS_PROTOCOL_TARGET} PUBLIC bcos-framework::utilities bcos-framework::protocol bcos-framework::codec tarscpp::tarsutil tarscpp::tarsparse)
+target_link_libraries(${BCOS_TARS_PROTOCOL_TARGET} PUBLIC bcos-framework::utilities bcos-framework::protocol bcos-framework::codec tarscpp::tarsutil tarscpp::tarsparse tarscpp::tarsservant)

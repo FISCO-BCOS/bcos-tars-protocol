@@ -30,4 +30,4 @@ find_package(wedpr-crypto CONFIG QUIET REQUIRED)
 find_package(Boost CONFIG QUIET REQUIRED unit_test_framework)
 
 target_compile_options(${TEST_BINARY_NAME} PRIVATE -Wno-error -Wno-unused-variable)
-target_link_libraries(${TEST_BINARY_NAME} ${BCOS_TARS_PROTOCOL_TARGET} wedpr-crypto::crypto Boost::unit_test_framework)
+target_link_libraries(${TEST_BINARY_NAME} ${BCOS_TARS_PROTOCOL_TARGET} wedpr-crypto::crypto Boost::unit_test_framework tarscpp::tarsservant)
