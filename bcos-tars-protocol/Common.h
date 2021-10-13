@@ -26,7 +26,8 @@
 #include <bcos-framework/interfaces/crypto/Hash.h>
 #include <bcos-framework/interfaces/crypto/KeyFactory.h>
 #include <bcos-framework/interfaces/ledger/LedgerConfig.h>
-#include <bcos-framework/interfaces/multigroup/GroupInfo.h>
+#include <bcos-framework/interfaces/multigroup/ChainNodeInfoFactory.h>
+#include <bcos-framework/interfaces/multigroup/GroupInfoFactory.h>
 #include <bcos-framework/libutilities/Common.h>
 #include <tarscpp/tup/Tars.h>
 #include <cstdint>
@@ -103,15 +104,49 @@ public:
     }
 };
 }  // namespace protocol
+
+inline bcos::group::ChainNodeInfo::Ptr toBcosChainNodeInfo(
+    bcos::group::ChainNodeInfoFactory::Ptr _factory, bcostars::ChainNodeInfo const& _tarsNodeInfo)
+{
+    auto nodeInfo = _factory->createNodeInfo();
+    nodeInfo->setNodeName(_tarsNodeInfo.nodeName);
+    nodeInfo->setNodeType((bcos::group::NodeType)_tarsNodeInfo.nodeType);
+    nodeInfo->setStatus(_tarsNodeInfo.status);
+    nodeInfo->setPrivateKey(_tarsNodeInfo.privateKey);
+    nodeInfo->setNodeID(_tarsNodeInfo.nodeID);
+    for (auto const& it : _tarsNodeInfo.deployInfo)
+    {
+        nodeInfo->appendDeployInfo(it.first, it.second);
+    }
+    return nodeInfo;
+}
+
+inline bcos::group::GroupInfo::Ptr toBcosGroupInfo(
+    bcos::group::ChainNodeInfoFactory::Ptr _nodeFactory,
+    bcos::group::GroupInfoFactory::Ptr _groupFactory, bcostars::GroupInfo const& _tarsGroupInfo)
+{
+    auto groupInfo = _groupFactory->createGroupInfo();
+    groupInfo->setChainID(_tarsGroupInfo.chainID);
+    groupInfo->setGroupID(_tarsGroupInfo.groupID);
+    groupInfo->setStatus(_tarsGroupInfo.status);
+    groupInfo->setGenesisConfig(_tarsGroupInfo.genesisConfig);
+    groupInfo->setIniConfig(_tarsGroupInfo.iniConfig);
+    for (auto const& tarsNodeInfo : _tarsGroupInfo.nodeList)
+    {
+        groupInfo->appendNodeInfo(toBcosChainNodeInfo(_nodeFactory, tarsNodeInfo));
+    }
+    return groupInfo;
+}
+
 inline bcostars::ChainNodeInfo toTarsChainNodeInfo(bcos::group::ChainNodeInfo::Ptr _nodeInfo)
 {
     bcostars::ChainNodeInfo tarsNodeInfo;
     tarsNodeInfo.nodeName = _nodeInfo->nodeName();
     tarsNodeInfo.nodeType = _nodeInfo->nodeType();
     tarsNodeInfo.status = (int32_t)_nodeInfo->status();
-    auto const& privateKeyData = _nodeInfo->privateKey();
-    tarsNodeInfo.privateKey = vector<tars::Char>(privateKeyData.begin(), privateKeyData.end());
+    tarsNodeInfo.privateKey = _nodeInfo->privateKey();
     tarsNodeInfo.deployInfo = _nodeInfo->deployInfo();
+    tarsNodeInfo.nodeID = _nodeInfo->nodeID();
     return tarsNodeInfo;
 }
 
