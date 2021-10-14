@@ -141,6 +141,10 @@ inline bcos::group::GroupInfo::Ptr toBcosGroupInfo(
 inline bcostars::ChainNodeInfo toTarsChainNodeInfo(bcos::group::ChainNodeInfo::Ptr _nodeInfo)
 {
     bcostars::ChainNodeInfo tarsNodeInfo;
+    if (!_nodeInfo)
+    {
+        return tarsNodeInfo;
+    }
     tarsNodeInfo.nodeName = _nodeInfo->nodeName();
     tarsNodeInfo.nodeType = _nodeInfo->nodeType();
     tarsNodeInfo.status = (int32_t)_nodeInfo->status();
@@ -153,6 +157,10 @@ inline bcostars::ChainNodeInfo toTarsChainNodeInfo(bcos::group::ChainNodeInfo::P
 inline bcostars::GroupInfo toTarsGroupInfo(bcos::group::GroupInfo::Ptr _groupInfo)
 {
     bcostars::GroupInfo tarsGroupInfo;
+    if (!_groupInfo)
+    {
+        return tarsGroupInfo;
+    }
     tarsGroupInfo.chainID = _groupInfo->chainID();
     tarsGroupInfo.groupID = _groupInfo->groupID();
     tarsGroupInfo.status = (int32_t)_groupInfo->status();

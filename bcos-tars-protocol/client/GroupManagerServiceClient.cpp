@@ -109,7 +109,7 @@ void GroupManagerServiceClient::asyncGetChainList(
     m_prx->async_asyncGetChainList(new Callback(_onGetChainList));
 }
 
-void GroupManagerServiceClient::asyncGetGroupList(std::string _chainID,
+void GroupManagerServiceClient::asyncGetGroupList(std::string const& _chainID,
     std::function<void(bcos::Error::Ptr&&, std::set<std::string>&&)> _onGetGroupList)
 {
     class Callback : public GroupManagerServicePrxCallback
@@ -136,7 +136,8 @@ void GroupManagerServiceClient::asyncGetGroupList(std::string _chainID,
     m_prx->async_asyncGetGroupList(new Callback(_onGetGroupList), _chainID);
 }
 
-void GroupManagerServiceClient::asyncGetGroupInfo(std::string _chainID, std::string _groupID,
+void GroupManagerServiceClient::asyncGetGroupInfo(std::string const& _chainID,
+    std::string const& _groupID,
     std::function<void(bcos::Error::Ptr&&, bcos::group::GroupInfo::Ptr&&)> _onGetGroupInfo)
 {
     class Callback : public GroupManagerServicePrxCallback
@@ -170,8 +171,8 @@ void GroupManagerServiceClient::asyncGetGroupInfo(std::string _chainID, std::str
         new Callback(_onGetGroupInfo, m_nodeInfoFactory, m_groupInfoFactory), _chainID, _groupID);
 }
 
-void GroupManagerServiceClient::asyncGetNodeInfo(std::string _chainID, std::string _groupID,
-    std::string _nodeName,
+void GroupManagerServiceClient::asyncGetNodeInfo(std::string const& _chainID,
+    std::string const& _groupID, std::string const& _nodeName,
     std::function<void(bcos::Error::Ptr&&, bcos::group::ChainNodeInfo::Ptr&&)> _onGetNodeInfo)
 {
     class Callback : public GroupManagerServicePrxCallback
@@ -199,4 +200,49 @@ void GroupManagerServiceClient::asyncGetNodeInfo(std::string _chainID, std::stri
     };
     m_prx->async_asyncGetNodeInfo(
         new Callback(_onGetNodeInfo, m_nodeInfoFactory), _chainID, _groupID, _nodeName);
+}
+
+void GroupManagerServiceClient::asyncGetGroupInfos(std::string const& _chainID,
+    std::vector<std::string> const& _groupList,
+    std::function<void(bcos::Error::Ptr&&, std::vector<bcos::group::GroupInfo::Ptr>&&)>
+        _onGetGroupInfos)
+{
+    class Callback : public GroupManagerServicePrxCallback
+    {
+    public:
+        Callback(std::function<void(bcos::Error::Ptr&&, std::vector<bcos::group::GroupInfo::Ptr>&&)>
+                     _callback,
+            bcos::group::ChainNodeInfoFactory::Ptr _nodeInfoFactory,
+            bcos::group::GroupInfoFactory::Ptr _groupInfoFactory)
+          : m_callback(_callback),
+            m_nodeInfoFactory(_nodeInfoFactory),
+            m_groupInfoFactory(_groupInfoFactory)
+        {}
+
+        void callback_asyncGetGroupInfos(
+            const bcostars::Error& ret, const vector<bcostars::GroupInfo>& _groupInfos) override
+        {
+            std::vector<bcos::group::GroupInfo::Ptr> bcosGroupInfos;
+            for (auto const& info : _groupInfos)
+            {
+                bcosGroupInfos.emplace_back(
+                    toBcosGroupInfo(m_nodeInfoFactory, m_groupInfoFactory, info));
+            }
+            m_callback(toBcosError(ret), std::move(bcosGroupInfos));
+        }
+
+        void callback_asyncGetGroupInfos_exception(tars::Int32 ret) override
+        {
+            m_callback(toBcosError(ret), std::vector<bcos::group::GroupInfo::Ptr>());
+        }
+
+    private:
+        std::function<void(bcos::Error::Ptr&&, std::vector<bcos::group::GroupInfo::Ptr>&&)>
+            m_callback;
+        bcos::group::ChainNodeInfoFactory::Ptr m_nodeInfoFactory;
+        bcos::group::GroupInfoFactory::Ptr m_groupInfoFactory;
+    };
+    m_prx->async_asyncGetGroupInfos(
+        new Callback(_onGetGroupInfos, m_nodeInfoFactory, m_groupInfoFactory), _chainID,
+        _groupList);
 }

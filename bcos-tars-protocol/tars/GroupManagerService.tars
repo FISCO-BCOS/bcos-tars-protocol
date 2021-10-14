@@ -17,6 +17,8 @@ interface GroupManagerService
     Error asyncGetChainList(out vector<string> _chainList);
     Error asyncGetGroupList(string _chainID, out vector<string> _groupList);
     Error asyncGetGroupInfo(string _chainID, string _groupID, out GroupInfo _groupInfo);
+    Error asyncGetGroupInfos(string _chainID, vector<string> _groupList, out vector<GroupInfo> _groupInfo);
+    
     Error asyncGetNodeInfo(string _chainID, string _groupID, string _nodeName, out ChainNodeInfo _nodeInfo);
 };
 };
