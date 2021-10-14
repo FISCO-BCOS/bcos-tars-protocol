@@ -73,10 +73,12 @@ public:
         std::function<void(bcos::Error::Ptr)> m_callback;
     };
 
-    void asyncNotifyBlockNumber(bcos::protocol::BlockNumber _blockNumber,
+    void asyncNotifyBlockNumber(std::string const& _groupID, std::string const& _nodeName,
+        bcos::protocol::BlockNumber _blockNumber,
         std::function<void(bcos::Error::Ptr)> _callback) override
     {
-        m_proxy->async_asyncNotifyBlockNumber(new Callback(_callback), _blockNumber);
+        m_proxy->async_asyncNotifyBlockNumber(
+            new Callback(_callback), _groupID, _nodeName, _blockNumber);
     }
 
     void asyncNotifyAmopMessage(bcos::crypto::NodeIDPtr _nodeID, const std::string& _id,
