@@ -286,7 +286,7 @@ public:
     }
 
     void notifyConnectedNodes(bcos::crypto::NodeIDSet const& _connectedNodes,
-        std::function<void(bcos::Error::Ptr)> _onRecvResponse)
+        std::function<void(bcos::Error::Ptr)> _onRecvResponse) override
     {
         class Callback : public bcostars::TxPoolServicePrxCallback
         {
