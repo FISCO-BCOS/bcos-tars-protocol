@@ -18,10 +18,11 @@
  * @author: yujiechen
  * @date 2021-10-13
  */
-#include "bcos-tars-protocol/client/ExecutorServiceClient.h"
 #include "bcos-tars-protocol/client/GatewayServiceClient.h"
+#include "bcos-tars-protocol/client/LedgerServiceClient.h"
 #include "bcos-tars-protocol/client/PBFTServiceClient.h"
 #include "bcos-tars-protocol/client/RpcServiceClient.h"
+#include "bcos-tars-protocol/client/SchedulerServiceClient.h"
 #include "bcos-tars-protocol/client/TxPoolServiceClient.h"
 #include <bcos-framework/testutils/TestPromptFixture.h>
 #include <boost/test/tools/old/interface.hpp>
@@ -34,12 +35,6 @@ namespace bcostars
 namespace test
 {
 BOOST_FIXTURE_TEST_SUITE(testServiceClient, TestPromptFixture)
-BOOST_AUTO_TEST_CASE(testExecutorService)
-{
-    bcostars::ExecutorServicePrx proxy;
-    std::make_shared<ExecutorServiceClient>(proxy, nullptr);
-}
-
 BOOST_AUTO_TEST_CASE(testGatewayService)
 {
     bcostars::GatewayServicePrx proxy;
@@ -62,6 +57,16 @@ BOOST_AUTO_TEST_CASE(testTxPoolService)
 {
     bcostars::TxPoolServicePrx proxy;
     std::make_shared<TxPoolServiceClient>(proxy, nullptr, nullptr);
+}
+BOOST_AUTO_TEST_CASE(testLedgerService)
+{
+    bcostars::LedgerServicePrx prx;
+    std::make_shared<LedgerServiceClient>(prx, nullptr);
+}
+BOOST_AUTO_TEST_CASE(testSchedulerService)
+{
+    bcostars::SchedulerServicePrx prx;
+    std::make_shared<SchedulerServiceClient>(prx, nullptr);
 }
 BOOST_AUTO_TEST_SUITE_END()
 }  // namespace test

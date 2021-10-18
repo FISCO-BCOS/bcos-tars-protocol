@@ -1,0 +1,9 @@
+
+#include "Transaction.tars"
+#include "TransactionReceipt.tars"
+#include "CommonProtocol.tars"
+module bcostars {
+    interface SchedulerService{
+        Error call(Transaction _tx, out TransactionReceipt _receipt);
+    };
+};
