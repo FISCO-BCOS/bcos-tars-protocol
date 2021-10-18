@@ -178,29 +178,31 @@ inline bcostars::GroupInfo toTarsGroupInfo(bcos::group::GroupInfo::Ptr _groupInf
     return tarsGroupInfo;
 }
 
+inline bcos::consensus::ConsensusNodeListPtr toConsensusNodeList(
+    bcos::crypto::KeyFactory::Ptr _keyFactory,
+    vector<bcostars::ConsensusNode> const& _tarsConsensusNodeList)
+{
+    auto consensusNodeList = std::make_shared<bcos::consensus::ConsensusNodeList>();
+    for (auto const& node : _tarsConsensusNodeList)
+    {
+        auto nodeID = _keyFactory->createKey(
+            bcos::bytesConstRef((bcos::byte*)node.nodeID.data(), node.nodeID.size()));
+        consensusNodeList->push_back(
+            std::make_shared<bcos::consensus::ConsensusNode>(nodeID, node.weight));
+    }
+    return consensusNodeList;
+}
+
 inline bcos::ledger::LedgerConfig::Ptr toLedgerConfig(
     bcostars::LedgerConfig const& _ledgerConfig, bcos::crypto::KeyFactory::Ptr _keyFactory)
 {
     auto ledgerConfig = std::make_shared<bcos::ledger::LedgerConfig>();
-    bcos::consensus::ConsensusNodeList consensusNodeList;
-    for (auto const& node : _ledgerConfig.consensusNodeList)
-    {
-        auto nodeID = _keyFactory->createKey(
-            bcos::bytesConstRef((bcos::byte*)node.nodeID.data(), node.nodeID.size()));
-        consensusNodeList.push_back(
-            std::make_shared<bcos::consensus::ConsensusNode>(nodeID, node.weight));
-    }
-    ledgerConfig->setConsensusNodeList(consensusNodeList);
+    auto consensusNodeList = toConsensusNodeList(_keyFactory, _ledgerConfig.consensusNodeList);
+    ledgerConfig->setConsensusNodeList(*consensusNodeList);
 
-    bcos::consensus::ConsensusNodeList observerNodeList;
-    for (auto const& node : _ledgerConfig.observerNodeList)
-    {
-        auto nodeID = _keyFactory->createKey(
-            bcos::bytesConstRef((bcos::byte*)node.nodeID.data(), node.nodeID.size()));
-        observerNodeList.push_back(
-            std::make_shared<bcos::consensus::ConsensusNode>(nodeID, node.weight));
-    }
-    ledgerConfig->setObserverNodeList(observerNodeList);
+    auto observerNodeList = toConsensusNodeList(_keyFactory, _ledgerConfig.observerNodeList);
+    ledgerConfig->setObserverNodeList(*observerNodeList);
+
     auto hash = bcos::crypto::HashType();
     if (_ledgerConfig.hash.size() >= bcos::crypto::HashType::size)
     {
@@ -216,6 +218,20 @@ inline bcos::ledger::LedgerConfig::Ptr toLedgerConfig(
     return ledgerConfig;
 }
 
+inline vector<bcostars::ConsensusNode> toTarsConsensusNodeList(
+    bcos::consensus::ConsensusNodeList const& _nodeList)
+{
+    // set consensusNodeList
+    vector<bcostars::ConsensusNode> tarsConsensusNodeList;
+    for (auto node : _nodeList)
+    {
+        bcostars::ConsensusNode consensusNode;
+        consensusNode.nodeID.assign(node->nodeID()->data().begin(), node->nodeID()->data().end());
+        consensusNode.weight = node->weight();
+        tarsConsensusNodeList.emplace_back(consensusNode);
+    }
+    return tarsConsensusNodeList;
+}
 inline bcostars::LedgerConfig toTarsLedgerConfig(bcos::ledger::LedgerConfig::Ptr _ledgerConfig)
 {
     bcostars::LedgerConfig ledgerConfig;
@@ -228,23 +244,9 @@ inline bcostars::LedgerConfig toTarsLedgerConfig(bcos::ledger::LedgerConfig::Ptr
     ledgerConfig.sealerId = _ledgerConfig->sealerId();
 
     // set consensusNodeList
-    auto const& consensusNodeList = _ledgerConfig->consensusNodeList();
-    for (auto node : consensusNodeList)
-    {
-        bcostars::ConsensusNode consensusNode;
-        consensusNode.nodeID.assign(node->nodeID()->data().begin(), node->nodeID()->data().end());
-        consensusNode.weight = node->weight();
-        ledgerConfig.consensusNodeList.push_back(consensusNode);
-    }
+    ledgerConfig.consensusNodeList = toTarsConsensusNodeList(_ledgerConfig->consensusNodeList());
     // set observerNodeList
-    auto const& observerNodeList = _ledgerConfig->observerNodeList();
-    for (auto node : observerNodeList)
-    {
-        bcostars::ConsensusNode observerNode;
-        observerNode.nodeID.assign(node->nodeID()->data().begin(), node->nodeID()->data().end());
-        observerNode.weight = node->weight();
-        ledgerConfig.observerNodeList.push_back(observerNode);
-    }
+    ledgerConfig.observerNodeList = toTarsConsensusNodeList(_ledgerConfig->observerNodeList());
     return ledgerConfig;
 }
 }  // namespace bcostars
