@@ -24,7 +24,7 @@
 #include <bcos-framework/libutilities/Common.h>
 namespace bcostars
 {
-class LedgerServiceClient : bcos::ledger::LedgerInterface
+class LedgerServiceClient : public bcos::ledger::LedgerInterface
 {
 public:
     LedgerServiceClient(
