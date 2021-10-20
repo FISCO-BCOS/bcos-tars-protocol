@@ -9,6 +9,7 @@ struct ChainNodeInfo
     5 optional string privateKey;
     6 optional map<string, string> deployInfo;
     7 optional string nodeID;
+    8 require bool microService;
 };
 struct GroupInfo
 {
