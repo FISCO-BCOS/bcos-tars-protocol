@@ -4,19 +4,17 @@ struct ChainNodeInfo
 {
     1 require string nodeName;
     2 require int nodeType;
-    3 require int status;
-    4 optional string iniConfig;
-    5 optional map<int, string> serviceInfo;
-    6 optional string nodeID;
-    7 require bool microService;
+    3 optional string iniConfig;
+    4 optional map<int, string> serviceInfo;
+    5 optional string nodeID;
+    6 require bool microService;
 };
 struct GroupInfo
 {
     1 require string chainID;
     2 require string groupID;
-    3 require int status;
-    4 require vector<ChainNodeInfo> nodeList;
-    5 optional string genesisConfig;
-    6 optional string iniConfig;
+    3 require vector<ChainNodeInfo> nodeList;
+    4 optional string genesisConfig;
+    5 optional string iniConfig;
 };
 };
