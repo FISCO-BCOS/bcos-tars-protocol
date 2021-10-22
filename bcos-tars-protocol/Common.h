@@ -112,16 +112,10 @@ inline bcos::group::ChainNodeInfo::Ptr toBcosChainNodeInfo(
     nodeInfo->setNodeName(_tarsNodeInfo.nodeName);
     nodeInfo->setNodeType((bcos::group::NodeType)_tarsNodeInfo.nodeType);
     nodeInfo->setStatus(_tarsNodeInfo.status);
-    nodeInfo->setPrivateKey(_tarsNodeInfo.privateKey);
     nodeInfo->setNodeID(_tarsNodeInfo.nodeID);
     nodeInfo->setIniConfig(_tarsNodeInfo.iniConfig);
     nodeInfo->setMicroService(_tarsNodeInfo.microService);
-
-    for (auto const& it : _tarsNodeInfo.deployInfo)
-    {
-        nodeInfo->appendDeployInfo(it.first, it.second);
-    }
-    return nodeInfo;
+    nodeInfo->setServicesInfo(_tarsNodeInfo.serviceInfo) return nodeInfo;
 }
 
 inline bcos::group::GroupInfo::Ptr toBcosGroupInfo(
@@ -151,8 +145,7 @@ inline bcostars::ChainNodeInfo toTarsChainNodeInfo(bcos::group::ChainNodeInfo::P
     tarsNodeInfo.nodeName = _nodeInfo->nodeName();
     tarsNodeInfo.nodeType = _nodeInfo->nodeType();
     tarsNodeInfo.status = (int32_t)_nodeInfo->status();
-    tarsNodeInfo.privateKey = _nodeInfo->privateKey();
-    tarsNodeInfo.deployInfo = _nodeInfo->deployInfo();
+    tarsNodeInfo.serviceInfo = _nodeInfo->serviceInfo();
     tarsNodeInfo.nodeID = _nodeInfo->nodeID();
     tarsNodeInfo.microService = _nodeInfo->microService();
     tarsNodeInfo.iniConfig = _nodeInfo->iniConfig();
