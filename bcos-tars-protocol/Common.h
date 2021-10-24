@@ -111,12 +111,12 @@ inline bcos::group::ChainNodeInfo::Ptr toBcosChainNodeInfo(
     auto nodeInfo = _factory->createNodeInfo();
     nodeInfo->setNodeName(_tarsNodeInfo.nodeName);
     nodeInfo->setNodeType((bcos::group::NodeType)_tarsNodeInfo.nodeType);
-    nodeInfo->setStatus(_tarsNodeInfo.status);
-    nodeInfo->setPrivateKey(_tarsNodeInfo.privateKey);
     nodeInfo->setNodeID(_tarsNodeInfo.nodeID);
-    for (auto const& it : _tarsNodeInfo.deployInfo)
+    nodeInfo->setIniConfig(_tarsNodeInfo.iniConfig);
+    nodeInfo->setMicroService(_tarsNodeInfo.microService);
+    for (auto const& it : _tarsNodeInfo.serviceInfo)
     {
-        nodeInfo->appendDeployInfo(it.first, it.second);
+        nodeInfo->appendServiceInfo((bcos::protocol::ServiceType)it.first, it.second);
     }
     return nodeInfo;
 }
@@ -128,7 +128,6 @@ inline bcos::group::GroupInfo::Ptr toBcosGroupInfo(
     auto groupInfo = _groupFactory->createGroupInfo();
     groupInfo->setChainID(_tarsGroupInfo.chainID);
     groupInfo->setGroupID(_tarsGroupInfo.groupID);
-    groupInfo->setStatus(_tarsGroupInfo.status);
     groupInfo->setGenesisConfig(_tarsGroupInfo.genesisConfig);
     groupInfo->setIniConfig(_tarsGroupInfo.iniConfig);
     for (auto const& tarsNodeInfo : _tarsGroupInfo.nodeList)
@@ -147,10 +146,14 @@ inline bcostars::ChainNodeInfo toTarsChainNodeInfo(bcos::group::ChainNodeInfo::P
     }
     tarsNodeInfo.nodeName = _nodeInfo->nodeName();
     tarsNodeInfo.nodeType = _nodeInfo->nodeType();
-    tarsNodeInfo.status = (int32_t)_nodeInfo->status();
-    tarsNodeInfo.privateKey = _nodeInfo->privateKey();
-    tarsNodeInfo.deployInfo = _nodeInfo->deployInfo();
+    auto const& info = _nodeInfo->serviceInfo();
+    for (auto const& it : info)
+    {
+        tarsNodeInfo.serviceInfo[(int32_t)it.first] = it.second;
+    }
     tarsNodeInfo.nodeID = _nodeInfo->nodeID();
+    tarsNodeInfo.microService = _nodeInfo->microService();
+    tarsNodeInfo.iniConfig = _nodeInfo->iniConfig();
     return tarsNodeInfo;
 }
 
@@ -163,7 +166,6 @@ inline bcostars::GroupInfo toTarsGroupInfo(bcos::group::GroupInfo::Ptr _groupInf
     }
     tarsGroupInfo.chainID = _groupInfo->chainID();
     tarsGroupInfo.groupID = _groupInfo->groupID();
-    tarsGroupInfo.status = (int32_t)_groupInfo->status();
     tarsGroupInfo.genesisConfig = _groupInfo->genesisConfig();
     tarsGroupInfo.iniConfig = _groupInfo->iniConfig();
     // set nodeList
