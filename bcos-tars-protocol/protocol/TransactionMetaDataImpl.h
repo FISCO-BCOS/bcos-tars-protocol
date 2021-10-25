@@ -38,8 +38,7 @@ public:
       : m_inner([inner = bcostars::TransactionMetaData()]() mutable { return &inner; })
     {}
 
-    TransactionMetaDataImpl(bcos::crypto::HashType hash, std::string to)
-      : m_inner([inner = bcostars::TransactionMetaData()]() mutable { return &inner; })
+    TransactionMetaDataImpl(bcos::crypto::HashType hash, std::string to) : TransactionMetaDataImpl()
     {
         setHash(std::move(hash));
         setTo(std::move(to));
