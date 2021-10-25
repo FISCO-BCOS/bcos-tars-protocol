@@ -70,7 +70,7 @@ public:
     }
     void setTo(std::string _to) override { m_inner()->to = std::move(_to); }
 
-    bcos::protocol::TxSubmitCallback submitCallback() override { return m_submitCallback; }
+    bcos::protocol::TxSubmitCallback submitCallback() const override { return m_submitCallback; }
 
     void setSubmitCallback(bcos::protocol::TxSubmitCallback _submitCallback) override
     {
