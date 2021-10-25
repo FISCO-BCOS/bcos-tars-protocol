@@ -20,6 +20,7 @@
  */
 #pragma once
 #include "bcos-tars-protocol/tars/Block.h"
+#include "interfaces/crypto/CommonType.h"
 #include <bcos-framework/interfaces/crypto/KeyInterface.h>
 #include <bcos-framework/interfaces/protocol/TransactionMetaData.h>
 
@@ -32,60 +33,48 @@ class TransactionMetaDataImpl : public bcos::protocol::TransactionMetaData
 public:
     using Ptr = std::shared_ptr<TransactionMetaDataImpl>;
     using ConstPtr = std::shared_ptr<const TransactionMetaDataImpl>;
-    TransactionMetaDataImpl() : m_rawTxMetaData(std::make_shared<bcostars::TransactionMetaData>())
-    {}
-    TransactionMetaDataImpl(bcos::crypto::HashType const& _hash, std::string const& _to)
-      : TransactionMetaDataImpl()
-    {
-        setHash(_hash);
-        setTo(_to);
-    }
 
-    explicit TransactionMetaDataImpl(bcostars::TransactionMetaData const& _txMetaData)
-      : TransactionMetaDataImpl()
-    {
-        bcos::crypto::HashType hashData;
-        if (_txMetaData.hash.size() >= bcos::crypto::HashType::size)
-        {
-            hashData =
-                bcos::crypto::HashType(reinterpret_cast<const bcos::byte*>(_txMetaData.hash.data()),
-                    bcos::crypto::HashType::size);
-        }
-        setHash(hashData);
-        setTo(_txMetaData.to);
-    }
+    TransactionMetaDataImpl(std::function<bcostars::TransactionMetaData*()> inner)
+      : m_inner(std::move(inner))
+    {}
 
     ~TransactionMetaDataImpl() override {}
 
-    bcos::crypto::HashType const& hash() const override
+    bcos::crypto::HashType hash() const override
     {
-        if (m_hash != bcos::crypto::HashType())
+        auto const& hashBytes = m_inner()->hash;
+        if (hashBytes.size() == bcos::crypto::HashType::size)
         {
-            return m_hash;
+            bcos::crypto::HashType hash(reinterpret_cast<const bcos::byte*>(hashBytes.data()),
+                bcos::crypto::HashType::size);
+            return hash;
         }
-        auto const& hash = m_rawTxMetaData->hash;
-        if (hash.size() >= bcos::crypto::HashType::size)
-        {
-            m_hash = bcos::crypto::HashType(
-                reinterpret_cast<const bcos::byte*>(hash.data()), bcos::crypto::HashType::size);
-        }
-        return m_hash;
+        return bcos::crypto::HashType();
     }
 
-    std::string_view to() const override { return m_rawTxMetaData->to; }
+    std::string_view to() const override { return m_inner()->to; }
 
-    void setHash(bcos::crypto::HashType const& _hash) override
+    void setHash(bcos::crypto::HashType _hash) override
     {
-        m_hash = _hash;
-        m_rawTxMetaData->hash.assign(_hash.begin(), _hash.end());
+        m_inner()->hash.assign(_hash.begin(), _hash.end());
     }
-    void setTo(std::string const& _to) override { m_rawTxMetaData->to = _to; }
+    void setTo(std::string _to) override { m_inner()->to = std::move(_to); }
 
-    std::shared_ptr<bcostars::TransactionMetaData> rawTxMetaData() { return m_rawTxMetaData; }
+    bcos::protocol::TxSubmitCallback submitCallback() override { return m_submitCallback; }
+
+    void setSubmitCallback(bcos::protocol::TxSubmitCallback _submitCallback) override
+    {
+        m_submitCallback = std::move(_submitCallback);
+    }
+
+    const bcostars::TransactionMetaData& inner() const { return *m_inner(); }
+    bcostars::TransactionMetaData& mutableInner() { return *m_inner(); }
+    bcostars::TransactionMetaData takeInner() { return std::move(*m_inner()); }
+    void setInner(bcostars::TransactionMetaData inner) { *m_inner() = std::move(inner); }
 
 private:
-    std::shared_ptr<bcostars::TransactionMetaData> m_rawTxMetaData;
-    mutable bcos::crypto::HashType m_hash = bcos::crypto::HashType();
+    std::function<bcostars::TransactionMetaData*()> m_inner;
+    bcos::protocol::TxSubmitCallback m_submitCallback;
 };
 }  // namespace protocol
 }  // namespace bcostars

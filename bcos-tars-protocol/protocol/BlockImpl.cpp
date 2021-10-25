@@ -128,19 +128,19 @@ bcos::protocol::NonceList const& BlockImpl::nonceList() const
 
 bcos::protocol::TransactionMetaData::ConstPtr BlockImpl::transactionMetaData(size_t _index) const
 {
-    if (transactionsMetaDataSize() <= _index)
+    if (_index > transactionsMetaDataSize())
     {
         return nullptr;
     }
     return std::make_shared<bcostars::protocol::TransactionMetaDataImpl>(
-        m_inner->transactionsMetaData[_index]);
+        [inner = &(m_inner->transactionsMetaData[_index])]() { return inner; });
 }
 
 void BlockImpl::appendTransactionMetaData(bcos::protocol::TransactionMetaData::Ptr _txMetaData)
 {
     auto txMetaDataImpl =
         std::dynamic_pointer_cast<bcostars::protocol::TransactionMetaDataImpl>(_txMetaData);
-    m_inner->transactionsMetaData.emplace_back(*(txMetaDataImpl->rawTxMetaData()));
+    m_inner->transactionsMetaData.emplace_back(txMetaDataImpl->takeInner());
 }
 
 size_t BlockImpl::transactionsMetaDataSize() const

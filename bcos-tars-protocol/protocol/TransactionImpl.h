@@ -48,6 +48,7 @@ public:
 
     void decode(bcos::bytesConstRef _txData) override;
     bcos::bytesConstRef encode(bool _onlyHashFields = false) const override;
+    bcos::bytes takeEncoded() override { return std::move(m_buffer); }
 
     bcos::crypto::HashType const& hash() const override;
     int32_t version() const override { return m_inner()->data.version; }
@@ -71,10 +72,8 @@ public:
     }
 
     const bcostars::Transaction& inner() const { return *m_inner(); }
+    void setInner(bcostars::Transaction inner) { *m_inner() = std::move(inner); }
 
-    void setInner(const bcostars::Transaction& inner) { *m_inner() = inner; }
-
-    void setInner(bcostars::Transaction&& inner) { *m_inner() = std::move(inner); }
     std::function<bcostars::Transaction*()> const& innerGetter() { return m_inner; }
 
 private:
