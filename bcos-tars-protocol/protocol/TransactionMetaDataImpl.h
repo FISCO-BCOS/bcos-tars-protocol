@@ -34,7 +34,18 @@ public:
     using Ptr = std::shared_ptr<TransactionMetaDataImpl>;
     using ConstPtr = std::shared_ptr<const TransactionMetaDataImpl>;
 
-    TransactionMetaDataImpl(std::function<bcostars::TransactionMetaData*()> inner)
+    TransactionMetaDataImpl()
+      : m_inner([inner = bcostars::TransactionMetaData()]() mutable { return &inner; })
+    {}
+
+    TransactionMetaDataImpl(bcos::crypto::HashType hash, std::string to)
+      : m_inner([inner = bcostars::TransactionMetaData()]() mutable { return &inner; })
+    {
+        setHash(std::move(hash));
+        setTo(std::move(to));
+    }
+
+    explicit TransactionMetaDataImpl(std::function<bcostars::TransactionMetaData*()> inner)
       : m_inner(std::move(inner))
     {}
 
