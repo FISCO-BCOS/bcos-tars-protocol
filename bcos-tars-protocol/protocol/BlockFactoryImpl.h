@@ -86,8 +86,7 @@ public:
     bcos::protocol::TransactionMetaData::Ptr createTransactionMetaData(
         bcos::crypto::HashType const _hash, std::string const& _to) override
     {
-        auto txMetaData = std::make_shared<bcostars::protocol::TransactionMetaDataImpl>(
-            [inner = bcostars::TransactionMetaData()]() mutable { return &inner; });
+        auto txMetaData = std::make_shared<bcostars::protocol::TransactionMetaDataImpl>();
         txMetaData->setHash(_hash);
         txMetaData->setTo(_to);
 

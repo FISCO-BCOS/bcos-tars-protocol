@@ -109,6 +109,10 @@ BOOST_AUTO_TEST_CASE(transactionMetaData)
     metaData2.mutableInner().readFrom(input);
 
     BOOST_CHECK_EQUAL(metaData2.hash().hex(), metaData.hash().hex());
+
+    bcostars::protocol::TransactionMetaDataImpl metaData3(hash, "Hello world!");
+    BOOST_CHECK_EQUAL(metaData3.hash().hex(), hash.hex());
+    BOOST_CHECK_EQUAL(metaData3.to(), "Hello world!");
 }
 
 BOOST_AUTO_TEST_CASE(transactionReceipt)

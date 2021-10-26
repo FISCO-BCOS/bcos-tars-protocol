@@ -146,7 +146,7 @@ bcos::protocol::TransactionMetaData::ConstPtr BlockImpl::transactionMetaData(siz
     }
 
     auto txMetaData = std::make_shared<bcostars::protocol::TransactionMetaDataImpl>(
-        [inner = &(m_inner->transactionsMetaData[_index])]() { return inner; });
+        [inner = m_inner, _index]() { return &inner->transactionsMetaData[_index]; });
 
     if (_index < m_txSubmitCallbacks.size())
     {
