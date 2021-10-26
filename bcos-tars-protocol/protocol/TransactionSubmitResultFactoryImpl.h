@@ -29,32 +29,12 @@ namespace protocol
 class TransactionSubmitResultFactoryImpl : public bcos::protocol::TransactionSubmitResultFactory
 {
 public:
-    bcos::protocol::TransactionSubmitResult::Ptr createTxSubmitResult(
-        bcos::protocol::BlockHeader::Ptr _blockHeader,
-        bcos::crypto::HashType const& _txHash) override
+    bcos::protocol::TransactionSubmitResult::Ptr createTxSubmitResult() override
     {
-        auto result = std::make_shared<TransactionSubmitResultImpl>(m_cryptoSuite);
-        auto inner = result->innerPointer();
-        inner->txHash.assign(_txHash.begin(), _txHash.end());
-        auto blockHash = _blockHeader->hash();
-        inner->blockHash.assign(blockHash.begin(), blockHash.end());
-
-        return result;
-    }
-
-    bcos::protocol::TransactionSubmitResult::Ptr createTxSubmitResult(
-        bcos::crypto::HashType const& _txHash, int32_t _status) override
-    {
-        auto result = std::make_shared<TransactionSubmitResultImpl>(m_cryptoSuite);
-        auto inner = result->innerPointer();
-        inner->txHash.assign(_txHash.begin(), _txHash.end());
-        inner->status = _status;
-
-        return result;
+        return std::make_shared<TransactionSubmitResultImpl>();
     }
 
 private:
-    bcos::crypto::CryptoSuite::Ptr m_cryptoSuite;
 };
 }  // namespace protocol
 }  // namespace bcostars
