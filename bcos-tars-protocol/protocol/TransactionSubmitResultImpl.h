@@ -78,6 +78,12 @@ public:
     int64_t transactionIndex() const override { return m_inner()->transactionIndex; }
     void setTransactionIndex(int64_t index) override { m_inner()->transactionIndex = index; }
 
+    bcos::protocol::NonceType nonce() const override
+    {
+        return bcos::protocol::NonceType(m_inner()->nonce);
+    }
+    void setNonce(bcos::protocol::NonceType nonce) override { m_inner()->nonce = nonce.str(); }
+
     bcos::protocol::TransactionReceipt::Ptr transactionReceipt() const override
     {
         return std::make_shared<bcostars::protocol::TransactionReceiptImpl>(

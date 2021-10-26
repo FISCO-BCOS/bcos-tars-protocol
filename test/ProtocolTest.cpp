@@ -3,6 +3,7 @@
 #include "bcos-tars-protocol/protocol/TransactionFactoryImpl.h"
 #include "bcos-tars-protocol/protocol/TransactionMetaDataImpl.h"
 #include "bcos-tars-protocol/protocol/TransactionReceiptFactoryImpl.h"
+#include "bcos-tars-protocol/protocol/TransactionSubmitResultImpl.h"
 #include "bcos-tars-protocol/tars/Block.h"
 #include <bcos-framework/interfaces/crypto/CommonType.h>
 #include <bcos-framework/interfaces/crypto/CryptoSuite.h>
@@ -433,6 +434,14 @@ BOOST_AUTO_TEST_CASE(emptyBlockHeader)
     auto block = blockFactory.createBlock();
 
     BOOST_CHECK_NO_THROW(block->setBlockHeader(nullptr));
+}
+
+BOOST_AUTO_TEST_CASE(submitResult)
+{
+    protocol::TransactionSubmitResultImpl submitResult;
+    submitResult.setNonce(bcos::protocol::NonceType("1234567"));
+
+    BOOST_CHECK_EQUAL(submitResult.nonce().str(), "1234567");
 }
 
 BOOST_AUTO_TEST_CASE(tarsMovable)

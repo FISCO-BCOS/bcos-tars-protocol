@@ -7,6 +7,7 @@ module bcostars {
         2 optional vector<byte> txHash;
         3 optional vector<byte> blockHash;
         4 optional long transactionIndex;
-        5 optional TransactionReceipt transactionReceipt;
+        5 optional string nonce;
+        6 optional TransactionReceipt transactionReceipt;
     };
 };
