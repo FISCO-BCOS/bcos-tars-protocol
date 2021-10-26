@@ -61,14 +61,15 @@ public:
         }
         return bcos::crypto::HashType();
     }
-
     std::string_view to() const override { return m_inner()->to; }
+    std::string_view source() const override { return m_inner()->source; }
 
     void setHash(bcos::crypto::HashType _hash) override
     {
         m_inner()->hash.assign(_hash.begin(), _hash.end());
     }
     void setTo(std::string _to) override { m_inner()->to = std::move(_to); }
+    void setSource(std::string source) override { m_inner()->source = std::move(source); }
 
     const bcostars::TransactionMetaData& inner() const { return *m_inner(); }
     bcostars::TransactionMetaData& mutableInner() { return *m_inner(); }

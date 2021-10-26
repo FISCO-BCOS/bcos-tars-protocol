@@ -148,11 +148,6 @@ bcos::protocol::TransactionMetaData::ConstPtr BlockImpl::transactionMetaData(siz
     auto txMetaData = std::make_shared<bcostars::protocol::TransactionMetaDataImpl>(
         [inner = m_inner, _index]() { return &inner->transactionsMetaData[_index]; });
 
-    if (_index < m_txSubmitCallbacks.size())
-    {
-        txMetaData->setSubmitCallback(m_txSubmitCallbacks[_index]);
-    }
-
     return txMetaData;
 }
 
@@ -161,7 +156,6 @@ void BlockImpl::appendTransactionMetaData(bcos::protocol::TransactionMetaData::P
     auto txMetaDataImpl =
         std::dynamic_pointer_cast<bcostars::protocol::TransactionMetaDataImpl>(_txMetaData);
     m_inner->transactionsMetaData.emplace_back(txMetaDataImpl->inner());
-    m_txSubmitCallbacks.emplace_back(_txMetaData->submitCallback());
 }
 
 size_t BlockImpl::transactionsMetaDataSize() const

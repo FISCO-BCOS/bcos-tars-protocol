@@ -107,7 +107,6 @@ public:
 private:
     std::shared_ptr<bcostars::Block> m_inner;
     mutable bcos::protocol::NonceList m_nonceList;
-    std::vector<bcos::protocol::TxSubmitCallback> m_txSubmitCallbacks;
 };
 }  // namespace protocol
 }  // namespace bcostars
