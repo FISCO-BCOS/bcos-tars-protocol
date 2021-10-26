@@ -18,6 +18,7 @@
  * @author: ancelmo
  * @date 2021-04-20
  */
+
 #include "BlockImpl.h"
 using namespace bcostars;
 using namespace bcostars::protocol;
@@ -38,22 +39,33 @@ void BlockImpl::encode(bcos::bytes& _encodeData) const
     output.getByteBuffer().swap(_encodeData);
 }
 
+bcos::protocol::BlockHeader::Ptr BlockImpl::blockHeader()
+{
+    return std::make_shared<bcostars::protocol::BlockHeaderImpl>(
+        m_transactionFactory->cryptoSuite(),
+        [inner = this->m_inner]() mutable { return &inner->blockHeader; });
+}
+
+bcos::protocol::BlockHeader::ConstPtr BlockImpl::blockHeaderConst() const
+{
+    return std::make_shared<const bcostars::protocol::BlockHeaderImpl>(
+        m_transactionFactory->cryptoSuite(),
+        [inner = this->m_inner]() { return &inner->blockHeader; });
+}
+
 bcos::protocol::Transaction::ConstPtr BlockImpl::transaction(size_t _index) const
 {
-    auto inner = std::const_pointer_cast<bcostars::Block>(m_inner);
-    return std::make_shared<bcostars::protocol::TransactionImpl>(
+    return std::make_shared<const bcostars::protocol::TransactionImpl>(
         m_transactionFactory->cryptoSuite(),
-        [m_inner = this->m_inner, _index]() { return &(m_inner->transactions[_index]); });
+        [inner = m_inner, _index]() { return &(inner->transactions[_index]); });
 }
 
 bcos::protocol::TransactionReceipt::ConstPtr BlockImpl::receipt(size_t _index) const
 {
-    auto inner = m_inner;
-
-    return std::make_shared<bcostars::protocol::TransactionReceiptImpl>(
+    return std::make_shared<const bcostars::protocol::TransactionReceiptImpl>(
         m_transactionFactory->cryptoSuite(),
-        [m_inner = this->m_inner, _index]() { return &(m_inner->receipts[_index]); });
-};
+        [inner = m_inner, _index]() { return &(inner->receipts[_index]); });
+}
 
 void BlockImpl::setBlockHeader(bcos::protocol::BlockHeader::Ptr _blockHeader)
 {
@@ -77,7 +89,7 @@ void BlockImpl::setReceipt(size_t _index, bcos::protocol::TransactionReceipt::Pt
 
 void BlockImpl::appendReceipt(bcos::protocol::TransactionReceipt::Ptr _receipt)
 {
-    m_inner->receipts.push_back(
+    m_inner->receipts.emplace_back(
         std::dynamic_pointer_cast<bcostars::protocol::TransactionReceiptImpl>(_receipt)->inner());
 }
 
@@ -128,19 +140,28 @@ bcos::protocol::NonceList const& BlockImpl::nonceList() const
 
 bcos::protocol::TransactionMetaData::ConstPtr BlockImpl::transactionMetaData(size_t _index) const
 {
-    if (_index > transactionsMetaDataSize())
+    if (_index >= transactionsMetaDataSize())
     {
         return nullptr;
     }
-    return std::make_shared<bcostars::protocol::TransactionMetaDataImpl>(
+
+    auto txMetaData = std::make_shared<bcostars::protocol::TransactionMetaDataImpl>(
         [inner = &(m_inner->transactionsMetaData[_index])]() { return inner; });
+
+    if (_index < m_txSubmitCallbacks.size())
+    {
+        txMetaData->setSubmitCallback(m_txSubmitCallbacks[_index]);
+    }
+
+    return txMetaData;
 }
 
 void BlockImpl::appendTransactionMetaData(bcos::protocol::TransactionMetaData::Ptr _txMetaData)
 {
     auto txMetaDataImpl =
         std::dynamic_pointer_cast<bcostars::protocol::TransactionMetaDataImpl>(_txMetaData);
-    m_inner->transactionsMetaData.emplace_back(txMetaDataImpl->takeInner());
+    m_inner->transactionsMetaData.emplace_back(txMetaDataImpl->inner());
+    m_txSubmitCallbacks.emplace_back(_txMetaData->submitCallback());
 }
 
 size_t BlockImpl::transactionsMetaDataSize() const
