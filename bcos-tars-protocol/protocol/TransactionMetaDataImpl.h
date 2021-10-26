@@ -70,13 +70,6 @@ public:
     }
     void setTo(std::string _to) override { m_inner()->to = std::move(_to); }
 
-    bcos::protocol::TxSubmitCallback submitCallback() const override { return m_submitCallback; }
-
-    void setSubmitCallback(bcos::protocol::TxSubmitCallback _submitCallback) override
-    {
-        m_submitCallback = std::move(_submitCallback);
-    }
-
     const bcostars::TransactionMetaData& inner() const { return *m_inner(); }
     bcostars::TransactionMetaData& mutableInner() { return *m_inner(); }
     bcostars::TransactionMetaData takeInner() { return std::move(*m_inner()); }
@@ -84,7 +77,6 @@ public:
 
 private:
     std::function<bcostars::TransactionMetaData*()> m_inner;
-    bcos::protocol::TxSubmitCallback m_submitCallback;
 };
 }  // namespace protocol
 }  // namespace bcostars
