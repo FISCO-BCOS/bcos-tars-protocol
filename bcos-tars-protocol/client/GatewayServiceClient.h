@@ -188,24 +188,86 @@ public:
         m_proxy->async_asyncNotifyGroupInfo(new Callback(_callback), tarsGroupInfo);
     }
 
-    // TODO: implement this
     void asyncSendMessageByTopic(const std::string& _topic, bcos::bytesConstRef _data,
-        std::function<void(bcos::Error::Ptr&&, bcos::bytesPointer)> _respFunc) override
-    {}
+        std::function<void(bcos::Error::Ptr&&, int16_t, bcos::bytesPointer)> _respFunc) override
+    {
+        class Callback : public bcostars::GatewayServicePrxCallback
+        {
+        public:
+            Callback(std::function<void(bcos::Error::Ptr&&, int16_t, bcos::bytesPointer)> callback)
+              : m_callback(callback)
+            {}
+            void callback_asyncSendMessageByTopic(const bcostars::Error& ret, tars::Int32 _type,
+                const vector<tars::Char>& _responseData) override
+            {
+                auto data =
+                    std::make_shared<bcos::bytes>(_responseData.begin(), _responseData.end());
+                m_callback(toBcosError(ret), _type, data);
+            }
+            void callback_asyncSendMessageByTopic_exception(tars::Int32 ret) override
+            {
+                return m_callback(toBcosError(ret), 0, nullptr);
+            }
+
+        private:
+            std::function<void(bcos::Error::Ptr&&, int16_t, bcos::bytesPointer)> m_callback;
+        };
+        vector<tars::Char> tarsRequestData(_data.begin(), _data.end());
+        m_proxy->async_asyncSendMessageByTopic(new Callback(_respFunc), _topic, tarsRequestData);
+    }
+
     void asyncSendBroadbastMessageByTopic(
         const std::string& _topic, bcos::bytesConstRef _data) override
-    {}
-
-    void asyncRegisterClient(std::string const& _clientID, std::string const& _clientEndPoint,
-        std::function<void(bcos::Error::Ptr&&)> _callback) override
-    {}
+    {
+        vector<tars::Char> tarsRequestData(_data.begin(), _data.end());
+        m_proxy->async_asyncSendBroadbastMessageByTopic(nullptr, _topic, tarsRequestData);
+    }
 
     void asyncSubscribeTopic(std::string const& _clientID, std::string const& _topicInfo,
         std::function<void(bcos::Error::Ptr&&)> _callback) override
-    {}
+    {
+        class Callback : public bcostars::GatewayServicePrxCallback
+        {
+        public:
+            Callback(std::function<void(bcos::Error::Ptr&&)> callback) : m_callback(callback) {}
+            void callback_asyncSubscribeTopic(const bcostars::Error& ret) override
+            {
+                m_callback(toBcosError(ret));
+            }
+            void callback_asyncSubscribeTopic_exception(tars::Int32 ret) override
+            {
+                return m_callback(toBcosError(ret));
+            }
+
+        private:
+            std::function<void(bcos::Error::Ptr&&)> m_callback;
+        };
+        m_proxy->async_asyncSubscribeTopic(new Callback(_callback), _clientID, _topicInfo);
+    }
+
     void asyncRemoveTopic(std::string const& _clientID, std::vector<std::string> const& _topicList,
         std::function<void(bcos::Error::Ptr&&)> _callback) override
-    {}
+    {
+        class Callback : public bcostars::GatewayServicePrxCallback
+        {
+        public:
+            Callback(std::function<void(bcos::Error::Ptr&&)> callback) : m_callback(callback) {}
+            void callback_asyncRemoveTopic(const bcostars::Error& ret) override
+            {
+                m_callback(toBcosError(ret));
+            }
+            void callback_asyncRemoveTopic_exception(tars::Int32 ret) override
+            {
+                return m_callback(toBcosError(ret));
+            }
+
+        private:
+            std::function<void(bcos::Error::Ptr&&)> m_callback;
+        };
+        m_proxy->async_asyncRemoveTopic(new Callback(_callback), _clientID, _topicList);
+    }
+
+    bcostars::GatewayServicePrx prx() { return m_proxy; }
 
 protected:
     void start() override {}

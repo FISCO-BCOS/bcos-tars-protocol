@@ -1,16 +1,27 @@
 #include "CommonProtocol.tars"
 #include "GroupInfo.tars"
 
-module bcostars {
-    interface GatewayService {
-        Error asyncSendMessageByNodeID(string groupID, vector<byte> srcNodeID, vector<byte> dstNodeID, vector<byte> payload);
+module bcostars
+{
+    interface GatewayService
+    {
+        Error asyncSendMessageByNodeID(
+            string groupID, vector<byte> srcNodeID, vector<byte> dstNodeID, vector<byte> payload);
 
-        Error asyncSendMessageByNodeIDs(string groupID, vector<byte> srcNodeID, vector<vector<byte>> dstNodeID, vector<byte> payload);
+        Error asyncSendMessageByNodeIDs(string groupID, vector<byte> srcNodeID,
+            vector<vector<byte>> dstNodeID, vector<byte> payload);
 
-        Error asyncSendBroadcastMessage(string groupID, vector<byte> srcNodeID, vector<byte> payload);
+        Error asyncSendBroadcastMessage(
+            string groupID, vector<byte> srcNodeID, vector<byte> payload);
         Error asyncGetPeers(out string peers);
         Error asyncGetNodeIDs(string groupID, out vector<vector<byte>> nodeIDs);
 
         Error asyncNotifyGroupInfo(GroupInfo groupInfo);
+
+        Error asyncSendMessageByTopic(
+            string _topic, vector<byte> _data, out int _type, out vector<byte> _responseData);
+        Error asyncSendBroadbastMessageByTopic(string _topic, vector<byte> _data);
+        Error asyncSubscribeTopic(string _clientID, string _topicInfo);
+        Error asyncRemoveTopic(string _clientID, vector<string> _topicList);
     };
 };
