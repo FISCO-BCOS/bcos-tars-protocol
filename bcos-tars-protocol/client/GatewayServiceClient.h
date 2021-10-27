@@ -188,6 +188,25 @@ public:
         m_proxy->async_asyncNotifyGroupInfo(new Callback(_callback), tarsGroupInfo);
     }
 
+    // TODO: implement this
+    void asyncSendMessageByTopic(const std::string& _topic, bcos::bytesConstRef _data,
+        std::function<void(bcos::Error::Ptr&&, bcos::bytesPointer)> _respFunc) override
+    {}
+    void asyncSendBroadbastMessageByTopic(
+        const std::string& _topic, bcos::bytesConstRef _data) override
+    {}
+
+    void asyncRegisterClient(std::string const& _clientID, std::string const& _clientEndPoint,
+        std::function<void(bcos::Error::Ptr&&)> _callback) override
+    {}
+
+    void asyncSubscribeTopic(std::string const& _clientID, std::string const& _topicInfo,
+        std::function<void(bcos::Error::Ptr&&)> _callback) override
+    {}
+    void asyncRemoveTopic(std::string const& _clientID, std::vector<std::string> const& _topicList,
+        std::function<void(bcos::Error::Ptr&&)> _callback) override
+    {}
+
 protected:
     void start() override {}
     void stop() override {}
