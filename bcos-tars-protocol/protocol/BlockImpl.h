@@ -25,6 +25,7 @@
 #include "TransactionReceiptImpl.h"
 #include "bcos-tars-protocol/Common.h"
 #include "bcos-tars-protocol/tars/Block.h"
+#include "interfaces/protocol/Transaction.h"
 #include <bcos-framework/interfaces/crypto/CryptoSuite.h>
 #include <bcos-framework/interfaces/protocol/Block.h>
 #include <bcos-framework/interfaces/protocol/BlockHeader.h>
@@ -42,11 +43,7 @@ public:
         bcos::protocol::TransactionReceiptFactory::Ptr _receiptFactory)
       : bcos::protocol::Block(_transactionFactory, _receiptFactory),
         m_inner(std::make_shared<bcostars::Block>())
-    {
-        m_blockHeader = std::make_shared<bcostars::protocol::BlockHeaderImpl>(
-            m_transactionFactory->cryptoSuite(),
-            [m_inner = this->m_inner]() mutable { return &m_inner->blockHeader; });
-    }
+    {}
 
     ~BlockImpl() override{};
 
@@ -61,11 +58,9 @@ public:
         return (bcos::protocol::BlockType)m_inner->type;
     }
 
-    bcos::protocol::BlockHeader::Ptr blockHeader() override { return m_blockHeader; };
-    bcos::protocol::BlockHeader::ConstPtr blockHeaderConst() const override
-    {
-        return m_blockHeader;
-    }
+    bcos::protocol::BlockHeader::Ptr blockHeader() override;
+    bcos::protocol::BlockHeader::ConstPtr blockHeaderConst() const override;
+
     bcos::protocol::Transaction::ConstPtr transaction(size_t _index) const override;
     bcos::protocol::TransactionReceipt::ConstPtr receipt(size_t _index) const override;
 
@@ -111,7 +106,6 @@ public:
 
 private:
     std::shared_ptr<bcostars::Block> m_inner;
-    std::shared_ptr<BlockHeaderImpl> m_blockHeader;
     mutable bcos::protocol::NonceList m_nonceList;
 };
 }  // namespace protocol
