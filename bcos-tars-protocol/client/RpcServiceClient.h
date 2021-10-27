@@ -25,6 +25,7 @@
 #include <bcos-framework/interfaces/amop/AMOPInterface.h>
 #include <bcos-framework/interfaces/rpc/RPCInterface.h>
 #include <bcos-framework/libutilities/Common.h>
+#include <boost/core/ignore_unused.hpp>
 
 namespace bcostars
 {
@@ -79,6 +80,13 @@ public:
     {
         m_proxy->async_asyncNotifyBlockNumber(
             new Callback(_callback), _groupID, _nodeName, _blockNumber);
+    }
+
+    virtual void asyncNotifyTransactionResult(const std::string_view& groupID,
+        bcos::crypto::HashType txHash, bcos::protocol::TransactionSubmitResult::Ptr result) override
+    {
+        // FIXME: to impl!
+        boost::ignore_unused(groupID, txHash, result);
     }
 
     void asyncNotifyAmopMessage(bcos::crypto::NodeIDPtr _nodeID, const std::string& _id,

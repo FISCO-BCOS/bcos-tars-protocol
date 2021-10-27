@@ -38,59 +38,70 @@ namespace protocol
 class TransactionSubmitResultImpl : public bcos::protocol::TransactionSubmitResult
 {
 public:
-    TransactionSubmitResultImpl() = delete;
-
-    TransactionSubmitResultImpl(bcos::crypto::CryptoSuite::Ptr cryptoSuite)
-      : bcos::protocol::TransactionSubmitResult(),
-        m_cryptoSuite(cryptoSuite),
-        m_inner(std::make_shared<bcostars::TransactionSubmitResult>())
+    TransactionSubmitResultImpl()
+      : m_inner([inner = bcostars::TransactionSubmitResult()]() mutable { return &inner; })
     {}
 
-    uint32_t status() const override { return m_inner->status; }
-    bcos::crypto::HashType const& txHash() const override
+    TransactionSubmitResultImpl(std::function<bcostars::TransactionSubmitResult*()> inner)
+      : m_inner(std::move(inner))
+    {}
+
+    uint32_t status() const override { return m_inner()->status; }
+    void setStatus(uint32_t status) override { m_inner()->status = status; }
+
+    bcos::crypto::HashType txHash() const override
     {
-        if (!m_inner->txHash.empty())
+        if (m_inner()->txHash.size() == bcos::crypto::HashType::size)
         {
-            return *(reinterpret_cast<const bcos::crypto::HashType*>(m_inner->txHash.data()));
+            return *(reinterpret_cast<const bcos::crypto::HashType*>(m_inner()->txHash.data()));
         }
-        return m_emptyHash;
+        return bcos::crypto::HashType();
     }
-    bcos::crypto::HashType const& blockHash() const override
+    void setTxHash(bcos::crypto::HashType txHash) override
     {
-        if (!m_inner->blockHash.empty())
+        m_inner()->txHash.assign(txHash.begin(), txHash.end());
+    }
+
+    bcos::crypto::HashType blockHash() const override
+    {
+        if (m_inner()->blockHash.size() == bcos::crypto::HashType::size)
         {
-            return *(reinterpret_cast<const bcos::crypto::HashType*>(m_inner->blockHash.data()));
+            return *(reinterpret_cast<const bcos::crypto::HashType*>(m_inner()->blockHash.data()));
         }
-        return m_emptyHash;
+        return bcos::crypto::HashType();
     }
-
-    int64_t transactionIndex() const override { return m_inner->transactionIndex; }
-    void setNonce(bcos::protocol::NonceType const& _nonce) override
+    void setBlockHash(bcos::crypto::HashType blockHash) override
     {
-        m_inner->nonce = boost::lexical_cast<std::string>(_nonce);
+        m_inner()->blockHash.assign(blockHash.begin(), blockHash.end());
     }
-    bcos::protocol::NonceType const& nonce() const override
+
+    int64_t transactionIndex() const override { return m_inner()->transactionIndex; }
+    void setTransactionIndex(int64_t index) override { m_inner()->transactionIndex = index; }
+
+    bcos::protocol::NonceType nonce() const override
     {
-        if (!m_inner->nonce.empty())
-        {
-            m_nonce = boost::lexical_cast<bcos::protocol::NonceType>(m_inner->nonce);
-        }
+        return bcos::protocol::NonceType(m_inner()->nonce);
+    }
+    void setNonce(bcos::protocol::NonceType nonce) override { m_inner()->nonce = nonce.str(); }
 
-        return m_nonce;
+    bcos::protocol::TransactionReceipt::Ptr transactionReceipt() const override
+    {
+        return std::make_shared<bcostars::protocol::TransactionReceiptImpl>(
+            nullptr, [innerPtr = &m_inner()->transactionReceipt]() {
+                return innerPtr;
+            });  // FIXME: no cryptoSuite for receipt!
+    }
+    void setTransactionReceipt(bcos::protocol::TransactionReceipt::Ptr transactionReceipt) override
+    {
+        auto transactionReceiptImpl =
+            std::dynamic_pointer_cast<TransactionReceiptImpl>(transactionReceipt);
+        m_inner()->transactionReceipt = transactionReceiptImpl->inner();  // FIXME: copy here!
     }
 
-
-    bcostars::TransactionSubmitResult const& inner() { return *m_inner; }
-    void setInner(const bcostars::TransactionSubmitResult& result) { *m_inner = result; }
-    void setInner(bcostars::TransactionSubmitResult&& result) { *m_inner = std::move(result); }
-
-    std::shared_ptr<bcostars::TransactionSubmitResult> innerPointer() { return m_inner; }
+    bcostars::TransactionSubmitResult const& inner() { return *m_inner(); }
 
 private:
-    mutable bcos::protocol::NonceType m_nonce;
-    bcos::crypto::CryptoSuite::Ptr m_cryptoSuite;
-    bcos::crypto::HashType m_emptyHash = bcos::crypto::HashType();
-    std::shared_ptr<bcostars::TransactionSubmitResult> m_inner;
+    std::function<bcostars::TransactionSubmitResult*()> m_inner;
 };
 }  // namespace protocol
 }  // namespace bcostars

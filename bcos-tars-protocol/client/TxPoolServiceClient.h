@@ -39,8 +39,8 @@ public:
                 const bcostars::TransactionSubmitResult& result) override
             {
                 auto bcosResult = std::make_shared<bcostars::protocol::TransactionSubmitResultImpl>(
-                    m_cryptoSuite);
-                bcosResult->setInner(result);
+                    [inner = std::move(const_cast<bcostars::TransactionSubmitResult&>(
+                         result))]() mutable { return &inner; });
                 m_callback(toBcosError(ret), bcosResult);
             }
             void callback_asyncSubmit_exception(tars::Int32 ret) override
@@ -390,7 +390,6 @@ public:
 
         m_proxy->async_notifyObserverNodeList(new Callback(_onRecvResponse), tarsConsensusNodeList);
     }
-
 
     // for RPC to get pending transactions
     void asyncGetPendingTransactionSize(

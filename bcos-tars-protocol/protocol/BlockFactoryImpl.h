@@ -20,6 +20,7 @@
  */
 #pragma once
 #include "BlockImpl.h"
+#include "bcos-tars-protocol/tars/Block.h"
 #include <bcos-framework/interfaces/protocol/BlockFactory.h>
 #include <bcos-framework/interfaces/protocol/BlockHeaderFactory.h>
 #include <bcos-framework/interfaces/protocol/TransactionFactory.h>
@@ -78,13 +79,18 @@ public:
 
     bcos::protocol::TransactionMetaData::Ptr createTransactionMetaData() override
     {
-        return std::make_shared<bcostars::protocol::TransactionMetaDataImpl>();
+        return std::make_shared<bcostars::protocol::TransactionMetaDataImpl>(
+            [inner = bcostars::TransactionMetaData()]() mutable { return &inner; });
     }
 
     bcos::protocol::TransactionMetaData::Ptr createTransactionMetaData(
         bcos::crypto::HashType const _hash, std::string const& _to) override
     {
-        return std::make_shared<bcostars::protocol::TransactionMetaDataImpl>(_hash, _to);
+        auto txMetaData = std::make_shared<bcostars::protocol::TransactionMetaDataImpl>();
+        txMetaData->setHash(_hash);
+        txMetaData->setTo(_to);
+
+        return txMetaData;
     }
 
 private:

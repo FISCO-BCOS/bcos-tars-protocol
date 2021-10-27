@@ -31,6 +31,7 @@ module bcostars {
     {
         1 require vector<byte> hash;
         2 optional string to;
+        3 optional string source;
     };
     struct Block {
         1 optional int version;
