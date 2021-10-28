@@ -63,6 +63,7 @@ public:
             new Callback(_callback), _groupID, _nodeName, _blockNumber);
     }
 
+    // TODO: implement this
     virtual void asyncNotifyTransactionResult(const std::string_view& groupID,
         bcos::crypto::HashType txHash, bcos::protocol::TransactionSubmitResult::Ptr result) override
     {
@@ -96,9 +97,37 @@ public:
     }
 
     // TODO: implement this
-    void asyncNotifyAMOPMessage(int16_t, std::string const&, bcos::bytesConstRef,
-        std::function<void(bcos::Error::Ptr&& _error, bcos::bytesPointer _responseData)>) override
-    {}
+    void asyncNotifyAMOPMessage(int16_t _type, std::string const& _topic, bcos::bytesConstRef _data,
+        std::function<void(bcos::Error::Ptr&& _error, bcos::bytesPointer _responseData)> _callback)
+        override
+    {
+        class Callback : public bcostars::RpcServicePrxCallback
+        {
+        public:
+            Callback(std::function<void(bcos::Error::Ptr&&, bcos::bytesPointer)> callback)
+              : m_callback(callback)
+            {}
+
+            void callback_asyncNotifyAMOPMessage(
+                const bcostars::Error& ret, const vector<tars::Char>& _responseData) override
+            {
+                auto responseData =
+                    std::make_shared<bcos::bytes>(_responseData.begin(), _responseData.end());
+                m_callback(toBcosError(ret), responseData);
+            }
+            void callback_asyncNotifyAMOPMessage_exception(tars::Int32 ret) override
+            {
+                m_callback(toBcosError(ret), nullptr);
+            }
+
+        private:
+            std::function<void(bcos::Error::Ptr&&, bcos::bytesPointer)> m_callback;
+        };
+        vector<tars::Char> request(_data.begin(), _data.end());
+        m_proxy->async_asyncNotifyAMOPMessage(new Callback(_callback), _type, _topic, request);
+    }
+
+    bcostars::RpcServicePrx prx() { return m_proxy; }
 
 protected:
     void start() override {}
