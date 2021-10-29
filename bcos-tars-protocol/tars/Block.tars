@@ -1,5 +1,6 @@
 #include "Transaction.tars"
 #include "TransactionReceipt.tars"
+#include "TransactionMetaData.tars"
 
 module bcostars {
     struct ParentInfo {
@@ -26,12 +27,6 @@ module bcostars {
         12 require vector<byte> extraData;
         13 require vector<Signature> signatureList;
         14 require vector<long> consensusWeights;
-    };
-    struct TransactionMetaData
-    {
-        1 require vector<byte> hash;
-        2 optional string to;
-        3 optional string source;
     };
     struct Block {
         1 optional int version;

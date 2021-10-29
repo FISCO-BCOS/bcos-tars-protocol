@@ -19,9 +19,7 @@
  * @date: 2021-09-07
  */
 #pragma once
-#include "bcos-tars-protocol/tars/Block.h"
-#include "interfaces/crypto/CommonType.h"
-#include <bcos-framework/interfaces/crypto/KeyInterface.h>
+#include "bcos-tars-protocol/tars/TransactionMetaData.h"
 #include <bcos-framework/interfaces/protocol/TransactionMetaData.h>
 
 namespace bcostars
@@ -61,14 +59,18 @@ public:
         }
         return bcos::crypto::HashType();
     }
-    std::string_view to() const override { return m_inner()->to; }
-    std::string_view source() const override { return m_inner()->source; }
-
     void setHash(bcos::crypto::HashType _hash) override
     {
         m_inner()->hash.assign(_hash.begin(), _hash.end());
     }
+
+    std::string_view to() const override { return m_inner()->to; }
     void setTo(std::string _to) override { m_inner()->to = std::move(_to); }
+
+    uint32_t attribute() const override { return m_inner()->attribute; }
+    void setAttribute(uint32_t attribute) override { m_inner()->attribute = attribute; }
+
+    std::string_view source() const override { return m_inner()->source; }
     void setSource(std::string source) override { m_inner()->source = std::move(source); }
 
     const bcostars::TransactionMetaData& inner() const { return *m_inner(); }
