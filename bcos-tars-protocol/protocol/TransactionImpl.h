@@ -71,6 +71,9 @@ public:
         m_inner()->signature.assign(signature.begin(), signature.end());
     }
 
+    uint32_t attribute() const override { return m_inner()->attribute; }
+    void setAttribute(uint32_t attribute) override { m_inner()->attribute = attribute; }
+
     const bcostars::Transaction& inner() const { return *m_inner(); }
     void setInner(bcostars::Transaction inner) { *m_inner() = std::move(inner); }
 
