@@ -20,12 +20,12 @@
  */
 
 #pragma once
-
 #include "TransactionReceiptImpl.h"
 #include "bcos-tars-protocol/Common.h"
 #include "bcos-tars-protocol/tars/TransactionReceipt.h"
 #include "bcos-tars-protocol/tars/TransactionSubmitResult.h"
 #include "interfaces/crypto/CommonType.h"
+#include <bcos-framework/interfaces/crypto/CryptoSuite.h>
 #include <bcos-framework/interfaces/protocol/TransactionSubmitResult.h>
 #include <bcos-framework/libutilities/Common.h>
 #include <boost/lexical_cast.hpp>
@@ -38,14 +38,15 @@ namespace protocol
 class TransactionSubmitResultImpl : public bcos::protocol::TransactionSubmitResult
 {
 public:
-    TransactionSubmitResultImpl()
-      : m_inner([inner = bcostars::TransactionSubmitResult()]() mutable { return &inner; })
+    TransactionSubmitResultImpl(bcos::crypto::CryptoSuite::Ptr _cryptoSuite)
+      : m_cryptoSuite(_cryptoSuite),
+        m_inner([inner = bcostars::TransactionSubmitResult()]() mutable { return &inner; })
     {}
 
-    TransactionSubmitResultImpl(std::function<bcostars::TransactionSubmitResult*()> inner)
-      : m_inner(std::move(inner))
+    TransactionSubmitResultImpl(bcos::crypto::CryptoSuite::Ptr _cryptoSuite,
+        std::function<bcostars::TransactionSubmitResult*()> inner)
+      : m_cryptoSuite(_cryptoSuite), m_inner(std::move(inner))
     {}
-
     uint32_t status() const override { return m_inner()->status; }
     void setStatus(uint32_t status) override { m_inner()->status = status; }
 
@@ -87,9 +88,7 @@ public:
     bcos::protocol::TransactionReceipt::Ptr transactionReceipt() const override
     {
         return std::make_shared<bcostars::protocol::TransactionReceiptImpl>(
-            nullptr, [innerPtr = &m_inner()->transactionReceipt]() {
-                return innerPtr;
-            });  // FIXME: no cryptoSuite for receipt!
+            m_cryptoSuite, [innerPtr = &m_inner()->transactionReceipt]() { return innerPtr; });
     }
     void setTransactionReceipt(bcos::protocol::TransactionReceipt::Ptr transactionReceipt) override
     {
@@ -102,6 +101,7 @@ public:
 
 private:
     std::function<bcostars::TransactionSubmitResult*()> m_inner;
+    bcos::crypto::CryptoSuite::Ptr m_cryptoSuite;
 };
 }  // namespace protocol
 }  // namespace bcostars

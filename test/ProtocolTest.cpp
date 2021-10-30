@@ -197,6 +197,20 @@ BOOST_AUTO_TEST_CASE(block)
     header->setSealerList(gsl::span<const bytes>(sealerList));
     BOOST_CHECK(header->sealerList().size() == 4);
 
+    auto signatureList = std::make_shared<std::vector<bcos::protocol::Signature>>();
+    for (int64_t i = 0; i < 2; i++)
+    {
+        bcos::protocol::Signature signature;
+        signature.index = i;
+        std::string signatureStr = "signature";
+        signature.signature = bcos::bytes(signatureStr.begin(), signatureStr.end());
+        signatureList->push_back(signature);
+    }
+    header->setSignatureList(*signatureList);
+    BOOST_CHECK(header->signatureList().size() == 2);
+    header->hash();
+    BOOST_CHECK(header->signatureList().size() == 2);
+
     auto logEntries = std::make_shared<std::vector<bcos::protocol::LogEntry>>();
     for (auto i : {1, 2, 3})
     {
@@ -239,6 +253,8 @@ BOOST_AUTO_TEST_CASE(block)
     {
         BOOST_CHECK(decodedSealerList[i] == sealerList[i]);
     }
+    auto decodedBlockHeader = decodedBlock->blockHeader();
+    BOOST_CHECK(decodedBlockHeader->signatureList().size() == 2);
 
     // ensure the blockheader lifetime
     for (auto i = 0; i < decodedBlock->blockHeader()->sealerList().size(); i++)
@@ -438,7 +454,7 @@ BOOST_AUTO_TEST_CASE(emptyBlockHeader)
 
 BOOST_AUTO_TEST_CASE(submitResult)
 {
-    protocol::TransactionSubmitResultImpl submitResult;
+    protocol::TransactionSubmitResultImpl submitResult(nullptr);
     submitResult.setNonce(bcos::protocol::NonceType("1234567"));
 
     BOOST_CHECK_EQUAL(submitResult.nonce().str(), "1234567");
