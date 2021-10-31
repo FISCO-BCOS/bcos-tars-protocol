@@ -21,6 +21,7 @@
 
 #pragma once
 #include "TransactionSubmitResultImpl.h"
+#include <bcos-framework/interfaces/crypto/CryptoSuite.h>
 #include <bcos-framework/interfaces/protocol/TransactionSubmitResultFactory.h>
 namespace bcostars
 {
@@ -31,10 +32,16 @@ class TransactionSubmitResultFactoryImpl : public bcos::protocol::TransactionSub
 public:
     bcos::protocol::TransactionSubmitResult::Ptr createTxSubmitResult() override
     {
-        return std::make_shared<TransactionSubmitResultImpl>();
+        return std::make_shared<TransactionSubmitResultImpl>(m_cryptoSuite);
+    }
+
+    void setCryptoSuite(bcos::crypto::CryptoSuite::Ptr _cryptoSuite)
+    {
+        m_cryptoSuite = _cryptoSuite;
     }
 
 private:
+    bcos::crypto::CryptoSuite::Ptr m_cryptoSuite;
 };
 }  // namespace protocol
 }  // namespace bcostars

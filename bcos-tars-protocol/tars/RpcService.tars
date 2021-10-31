@@ -1,10 +1,12 @@
 #include "CommonProtocol.tars"
 #include "GroupInfo.tars"
+#include "TransactionSubmitResult.tars"
 
 module bcostars {
     interface RpcService {
         Error asyncNotifyBlockNumber(string groupID, string nodeName, long blockNumber);
         Error asyncNotifyGroupInfo(GroupInfo groupInfo);
         Error asyncNotifyAMOPMessage(int _type, string _topic, vector<byte> _requestData, out vector<byte> _responseData);
+        Error asyncNotifyTransactionResult(string _rpcID, string _groupID, vector<byte> _txHash, TransactionSubmitResult _result);
     };
 };

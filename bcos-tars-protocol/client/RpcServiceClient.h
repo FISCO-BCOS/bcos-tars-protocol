@@ -21,9 +21,11 @@
 #pragma once
 #include "bcos-tars-protocol/Common.h"
 #include "bcos-tars-protocol/ErrorConverter.h"
+#include "bcos-tars-protocol/protocol/TransactionSubmitResultImpl.h"
 #include "bcos-tars-protocol/tars/RpcService.h"
 #include <bcos-framework/interfaces/rpc/RPCInterface.h>
 #include <bcos-framework/libutilities/Common.h>
+#include <tarscpp/servant/Application.h>
 #include <boost/core/ignore_unused.hpp>
 
 namespace bcostars
@@ -63,12 +65,36 @@ public:
             new Callback(_callback), _groupID, _nodeName, _blockNumber);
     }
 
-    // TODO: implement this
-    virtual void asyncNotifyTransactionResult(const std::string_view& groupID,
-        bcos::crypto::HashType txHash, bcos::protocol::TransactionSubmitResult::Ptr result) override
+    // TODO: remove this
+    virtual void asyncNotifyTransactionResult(std::string const& _rpcID,
+        const std::string_view& groupID, bcos::crypto::HashType txHash,
+        bcos::protocol::TransactionSubmitResult::Ptr result) override
     {
-        // FIXME: to impl!
-        boost::ignore_unused(groupID, txHash, result);
+        class Callback : public bcostars::RpcServicePrxCallback
+        {
+        public:
+            Callback(std::function<void(bcos::Error::Ptr&&)> callback) : m_callback(callback) {}
+
+            void callback_asyncNotifyTransactionResult(const bcostars::Error& ret) override
+            {
+                m_callback(toBcosError(ret));
+            }
+            void callback_asyncNotifyTransactionResult_exception(tars::Int32 ret) override
+            {
+                m_callback(toBcosError(ret));
+            }
+
+        private:
+            std::function<void(bcos::Error::Ptr&&)> m_callback;
+        };
+        std::function<void(bcos::Error::Ptr &&)> callback = [](bcos::Error::Ptr&&) {};
+        vector<tars::Char> txHashData(txHash.begin(), txHash.end());
+        auto tarsTxResult =
+            std::dynamic_pointer_cast<bcostars::protocol::TransactionSubmitResultImpl>(result);
+
+        auto servicePrx = Application::getCommunicator()->stringToProxy<RpcServicePrx>(_rpcID);
+        servicePrx->async_asyncNotifyTransactionResult(new Callback(callback), _rpcID,
+            std::string(groupID), txHashData, tarsTxResult->inner());
     }
 
 
@@ -96,7 +122,6 @@ public:
         m_proxy->async_asyncNotifyGroupInfo(new Callback(_callback), tarsGroupInfo);
     }
 
-    // TODO: implement this
     void asyncNotifyAMOPMessage(int16_t _type, std::string const& _topic, bcos::bytesConstRef _data,
         std::function<void(bcos::Error::Ptr&& _error, bcos::bytesPointer _responseData)> _callback)
         override

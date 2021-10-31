@@ -15,5 +15,6 @@ module bcostars {
         3 optional vector<byte> signature;
         4 optional long importTime;
         5 optional long attribute;
+        6 optional string source;
     };
 };
