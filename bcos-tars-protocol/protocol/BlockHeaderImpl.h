@@ -72,6 +72,7 @@ public:
     }
     gsl::span<const bcos::protocol::Signature> signatureList() const override
     {
+        bcos::ReadGuard l(x_signatureList);
         return gsl::span(
             reinterpret_cast<const bcos::protocol::Signature*>(m_inner()->signatureList.data()),
             m_inner()->signatureList.size());
@@ -157,6 +158,9 @@ private:
     mutable std::vector<bcos::protocol::ParentInfo> m_parentInfo;
     mutable bcos::u256 m_gasUsed;
     mutable bcos::bytes m_buffer;
+    bcos::crypto::HashType m_emptyHash = bcos::crypto::HashType();
+
+    mutable bcos::SharedMutex x_signatureList;
 };
 }  // namespace protocol
 }  // namespace bcostars

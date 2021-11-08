@@ -45,6 +45,7 @@ bcos::bytesConstRef BlockHeaderImpl::encode(bool _onlyHashFieldsData) const
 {
     if (_onlyHashFieldsData)
     {
+        bcos::WriteGuard l(x_signatureList);
         vector<Signature> emptyList;
         m_inner()->signatureList.swap(emptyList);
         encode(m_buffer);
@@ -88,7 +89,7 @@ bcos::crypto::HashType const& BlockHeaderImpl::txsRoot() const
     {
         return *(reinterpret_cast<const bcos::crypto::HashType*>(m_inner()->txsRoot.data()));
     }
-    return bcostars::protocol::emptyHash;
+    return m_emptyHash;
 }
 
 bcos::crypto::HashType const& BlockHeaderImpl::stateRoot() const
@@ -97,7 +98,7 @@ bcos::crypto::HashType const& BlockHeaderImpl::stateRoot() const
     {
         return *(reinterpret_cast<const bcos::crypto::HashType*>(m_inner()->stateRoot.data()));
     }
-    return bcostars::protocol::emptyHash;
+    return m_emptyHash;
 }
 
 bcos::crypto::HashType const& BlockHeaderImpl::receiptsRoot() const
@@ -106,7 +107,7 @@ bcos::crypto::HashType const& BlockHeaderImpl::receiptsRoot() const
     {
         return *(reinterpret_cast<const bcos::crypto::HashType*>(m_inner()->receiptRoot.data()));
     }
-    return bcostars::protocol::emptyHash;
+    return m_emptyHash;
 }
 
 bcos::u256 const& BlockHeaderImpl::gasUsed() const

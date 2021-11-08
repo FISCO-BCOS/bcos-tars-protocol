@@ -213,7 +213,6 @@ inline bcos::ledger::LedgerConfig::Ptr toLedgerConfig(
     }
     ledgerConfig->setHash(hash);
     ledgerConfig->setBlockNumber(_ledgerConfig.blockNumber);
-    ledgerConfig->setConsensusTimeout(_ledgerConfig.consensusTimeout);
     ledgerConfig->setBlockTxCountLimit(_ledgerConfig.blockTxCountLimit);
     ledgerConfig->setLeaderSwitchPeriod(_ledgerConfig.leaderSwitchPeriod);
     ledgerConfig->setSealerId(_ledgerConfig.sealerId);
@@ -240,7 +239,6 @@ inline bcostars::LedgerConfig toTarsLedgerConfig(bcos::ledger::LedgerConfig::Ptr
     auto hash = _ledgerConfig->hash().asBytes();
     ledgerConfig.hash.assign(hash.begin(), hash.end());
     ledgerConfig.blockNumber = _ledgerConfig->blockNumber();
-    ledgerConfig.consensusTimeout = _ledgerConfig->consensusTimeout();
     ledgerConfig.blockTxCountLimit = _ledgerConfig->blockTxCountLimit();
     ledgerConfig.leaderSwitchPeriod = _ledgerConfig->leaderSwitchPeriod();
     ledgerConfig.sealerId = _ledgerConfig->sealerId();
