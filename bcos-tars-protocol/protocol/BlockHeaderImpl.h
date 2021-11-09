@@ -39,9 +39,14 @@ public:
 
     BlockHeaderImpl() = delete;
 
+    explicit BlockHeaderImpl(bcos::crypto::CryptoSuite::Ptr cryptoSuite,
+        std::function<bcostars::BlockHeader*()> inner, std::shared_ptr<bcos::SharedMutex> _mutex)
+      : bcos::protocol::BlockHeader(cryptoSuite), m_inner(inner), x_mutex(_mutex)
+    {}
+
     explicit BlockHeaderImpl(
         bcos::crypto::CryptoSuite::Ptr cryptoSuite, std::function<bcostars::BlockHeader*()> inner)
-      : bcos::protocol::BlockHeader(cryptoSuite), m_inner(inner)
+      : BlockHeaderImpl(cryptoSuite, inner, std::make_shared<bcos::SharedMutex>())
     {}
 
     void decode(bcos::bytesConstRef _data) override;
@@ -72,6 +77,7 @@ public:
     }
     gsl::span<const bcos::protocol::Signature> signatureList() const override
     {
+        bcos::ReadGuard l(*x_mutex);
         return gsl::span(
             reinterpret_cast<const bcos::protocol::Signature*>(m_inner()->signatureList.data()),
             m_inner()->signatureList.size());
@@ -157,6 +163,8 @@ private:
     mutable std::vector<bcos::protocol::ParentInfo> m_parentInfo;
     mutable bcos::u256 m_gasUsed;
     mutable bcos::bytes m_buffer;
+    bcos::crypto::HashType m_emptyHash = bcos::crypto::HashType();
+    std::shared_ptr<bcos::SharedMutex> x_mutex;
 };
 }  // namespace protocol
 }  // namespace bcostars

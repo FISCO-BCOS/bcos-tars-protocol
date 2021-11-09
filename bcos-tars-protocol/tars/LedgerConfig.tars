@@ -10,9 +10,8 @@ module bcostars
         2 optional vector<ConsensusNode> observerNodeList;
         3 optional vector<byte> hash;
         4 optional long blockNumber;
-        5 optional long consensusTimeout;
-        6 optional long blockTxCountLimit;
-        7 optional long leaderSwitchPeriod;
-        8 optional long sealerId;
+        5 optional long blockTxCountLimit;
+        6 optional long leaderSwitchPeriod;
+        7 optional long sealerId;
     };
 };

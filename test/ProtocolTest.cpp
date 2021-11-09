@@ -13,6 +13,7 @@
 #include <bcos-framework/libutilities/DataConvertUtility.h>
 #include <bcos-framework/testutils/crypto/HashImpl.h>
 #include <bcos-framework/testutils/crypto/SignatureImpl.h>
+#include <tbb/parallel_for.h>
 #include <boost/test/tools/old/interface.hpp>
 #include <boost/test/unit_test.hpp>
 #include <gsl/span>
@@ -211,6 +212,18 @@ BOOST_AUTO_TEST_CASE(block)
     header->hash();
     BOOST_CHECK(header->signatureList().size() == 2);
 
+    tbb::parallel_for(
+        tbb::blocked_range<size_t>(0, 50), [block](const tbb::blocked_range<size_t>& range) {
+            for (size_t i = range.begin(); i < range.end(); ++i)
+            {
+                auto constHeader = block->blockHeaderConst();
+                BOOST_CHECK(constHeader->signatureList().size() == 2);
+                std::cout << "### getHash:" << constHeader->hash().abridged() << std::endl;
+
+                auto header2 = block->blockHeader();
+                BOOST_CHECK(header2->signatureList().size() == 2);
+            }
+        });
     auto logEntries = std::make_shared<std::vector<bcos::protocol::LogEntry>>();
     for (auto i : {1, 2, 3})
     {

@@ -146,6 +146,12 @@ void BlockSyncServiceClient::asyncGetSyncInfo(
 void BlockSyncServiceClient::notifyConnectedNodes(bcos::crypto::NodeIDSet const& _connectedNodes,
     std::function<void(bcos::Error::Ptr)> _onRecvResponse)
 {
+    PBFTServiceClient::notifyConnectedNodes(_connectedNodes, _onRecvResponse);
+}
+
+void PBFTServiceClient::notifyConnectedNodes(bcos::crypto::NodeIDSet const& _connectedNodes,
+    std::function<void(bcos::Error::Ptr)> _onResponse)
+{
     class Callback : public bcostars::PBFTServicePrxCallback
     {
     public:
@@ -171,5 +177,32 @@ void BlockSyncServiceClient::notifyConnectedNodes(bcos::crypto::NodeIDSet const&
         auto nodeID = it->data();
         tarsConnectedNodes.emplace_back(nodeID.begin(), nodeID.end());
     }
-    m_proxy->async_asyncNotifyConnectedNodes(new Callback(_onRecvResponse), tarsConnectedNodes);
+    m_proxy->async_asyncNotifyConnectedNodes(new Callback(_onResponse), tarsConnectedNodes);
+}
+
+void PBFTServiceClient::asyncGetConsensusStatus(
+    std::function<void(bcos::Error::Ptr, std::string)> _onGetConsensusStatus)
+{
+    class Callback : public PBFTServicePrxCallback
+    {
+    public:
+        explicit Callback(std::function<void(bcos::Error::Ptr, std::string)> _callback)
+          : PBFTServicePrxCallback(), m_callback(_callback)
+        {}
+        ~Callback() override {}
+
+        void callback_asyncGetConsensusStatus(
+            const bcostars::Error& ret, const std::string& _consensusStatus) override
+        {
+            m_callback(toBcosError(ret), _consensusStatus);
+        }
+        void callback_asyncGetConsensusStatus_exception(tars::Int32 ret) override
+        {
+            m_callback(toBcosError(ret), "callback_asyncGetConsensusStatus_exception");
+        }
+
+    private:
+        std::function<void(bcos::Error::Ptr, std::string)> m_callback;
+    };
+    m_proxy->async_asyncGetConsensusStatus(new Callback(_onGetConsensusStatus));
 }
