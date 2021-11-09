@@ -13,7 +13,7 @@ module bcostars {
         Error asyncNoteUnSealedTxsSize(long _unsealedTxsSize);
         
         Error asyncGetSyncInfo(out string _syncInfo);
-
+        Error asyncGetConsensusStatus(out string _consensusStatus);
         Error asyncNotifyConnectedNodes(vector<vector<byte>> connectedNodes);
     };
 };

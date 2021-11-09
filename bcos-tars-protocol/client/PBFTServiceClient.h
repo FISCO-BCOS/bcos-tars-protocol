@@ -149,15 +149,22 @@ public:
         throw std::runtime_error("asyncResetSealing: unimplemented interface!");
     }
 
-private:
+    void asyncGetConsensusStatus(
+        std::function<void(bcos::Error::Ptr, std::string)> _onGetConsensusStatus) override;
+
+    void notifyConnectedNodes(bcos::crypto::NodeIDSet const& _connectedNodes,
+        std::function<void(bcos::Error::Ptr)> _onResponse) override;
+
+protected:
     bcostars::PBFTServicePrx m_proxy;
 };
 
-class BlockSyncServiceClient : virtual public bcos::sync::BlockSyncInterface
+class BlockSyncServiceClient : virtual public bcos::sync::BlockSyncInterface,
+                               public PBFTServiceClient
 {
 public:
     using Ptr = std::shared_ptr<BlockSyncServiceClient>;
-    BlockSyncServiceClient(bcostars::PBFTServicePrx _proxy) : m_proxy(_proxy) {}
+    BlockSyncServiceClient(bcostars::PBFTServicePrx _proxy) : PBFTServiceClient(_proxy) {}
     ~BlockSyncServiceClient() override {}
 
     // called by the consensus module when commit a new block
@@ -191,8 +198,5 @@ public:
 protected:
     void start() override {}
     void stop() override {}
-
-private:
-    bcostars::PBFTServicePrx m_proxy;
 };
 }  // namespace bcostars
