@@ -22,7 +22,6 @@
 
 using namespace bcostars;
 using namespace bcostars::protocol;
-
 void BlockHeaderImpl::decode(bcos::bytesConstRef _data)
 {
     m_buffer.assign(_data.begin(), _data.end());
@@ -43,9 +42,9 @@ void BlockHeaderImpl::encode(bcos::bytes& _encodeData) const
 
 bcos::bytesConstRef BlockHeaderImpl::encode(bool _onlyHashFieldsData) const
 {
+    bcos::WriteGuard l(*x_mutex);
     if (_onlyHashFieldsData)
     {
-        bcos::WriteGuard l(x_signatureList);
         vector<Signature> emptyList;
         m_inner()->signatureList.swap(emptyList);
         encode(m_buffer);
@@ -144,6 +143,7 @@ void BlockHeaderImpl::setSealerList(gsl::span<const bcos::bytes> const& _sealerL
 void BlockHeaderImpl::setSignatureList(
     gsl::span<const bcos::protocol::Signature> const& _signatureList)
 {
+    bcos::WriteGuard l(*x_mutex);
     for (auto& it : _signatureList)
     {
         Signature signature;

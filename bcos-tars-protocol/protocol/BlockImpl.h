@@ -42,7 +42,8 @@ public:
     BlockImpl(bcos::protocol::TransactionFactory::Ptr _transactionFactory,
         bcos::protocol::TransactionReceiptFactory::Ptr _receiptFactory)
       : bcos::protocol::Block(_transactionFactory, _receiptFactory),
-        m_inner(std::make_shared<bcostars::Block>())
+        m_inner(std::make_shared<bcostars::Block>()),
+        x_mutex(std::make_shared<bcos::SharedMutex>())
     {}
 
     ~BlockImpl() override{};
@@ -57,7 +58,7 @@ public:
     {
         return (bcos::protocol::BlockType)m_inner->type;
     }
-
+    // FIXME: this will cause the same blockHeader calculate hash multiple times
     bcos::protocol::BlockHeader::Ptr blockHeader() override;
     bcos::protocol::BlockHeader::ConstPtr blockHeaderConst() const override;
 
@@ -107,6 +108,7 @@ public:
 private:
     std::shared_ptr<bcostars::Block> m_inner;
     mutable bcos::protocol::NonceList m_nonceList;
+    std::shared_ptr<bcos::SharedMutex> x_mutex;
 };
 }  // namespace protocol
 }  // namespace bcostars
