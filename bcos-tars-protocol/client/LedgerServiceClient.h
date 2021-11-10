@@ -60,7 +60,7 @@ public:
         std::function<void(bcos::Error::Ptr, bcos::protocol::BlockNumber)> _onGetBlock) override;
 
     void asyncGetBlockHashByNumber(bcos::protocol::BlockNumber _blockNumber,
-        std::function<void(bcos::Error::Ptr, bcos::crypto::HashType const&)> _onGetBlock) override;
+        std::function<void(bcos::Error::Ptr, bcos::crypto::HashType)> _onGetBlock) override;
 
     void asyncGetBlockNumberByHash(bcos::crypto::HashType const& _blockHash,
         std::function<void(bcos::Error::Ptr, bcos::protocol::BlockNumber)> _onGetBlock) override;
