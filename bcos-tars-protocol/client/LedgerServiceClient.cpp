@@ -84,12 +84,12 @@ void LedgerServiceClient::asyncGetBlockNumber(
 }
 
 void LedgerServiceClient::asyncGetBlockHashByNumber(bcos::protocol::BlockNumber _blockNumber,
-    std::function<void(bcos::Error::Ptr, bcos::crypto::HashType const&)> _onGetBlock)
+    std::function<void(bcos::Error::Ptr, bcos::crypto::HashType)> _onGetBlock)
 {
     class Callback : public LedgerServicePrxCallback
     {
     public:
-        Callback(std::function<void(bcos::Error::Ptr, bcos::crypto::HashType const&)> _callback)
+        Callback(std::function<void(bcos::Error::Ptr, bcos::crypto::HashType)> _callback)
           : m_callback(_callback)
         {}
         void callback_asyncGetBlockHashByNumber(
