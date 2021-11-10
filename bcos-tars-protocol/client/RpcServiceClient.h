@@ -61,6 +61,17 @@ public:
         bcos::protocol::BlockNumber _blockNumber,
         std::function<void(bcos::Error::Ptr)> _callback) override
     {
+        auto ret = checkConnection(
+            c_moduleName, "asyncNotifyBlockNumber", m_proxy, [_callback](bcos::Error::Ptr _error) {
+                if (_callback)
+                {
+                    _callback(_error);
+                }
+            });
+        if (!ret)
+        {
+            return;
+        }
         m_proxy->async_asyncNotifyBlockNumber(
             new Callback(_callback), _groupID, _nodeName, _blockNumber);
     }
@@ -118,6 +129,17 @@ public:
         private:
             std::function<void(bcos::Error::Ptr&&)> m_callback;
         };
+        auto ret = checkConnection(
+            c_moduleName, "asyncNotifyGroupInfo", m_proxy, [_callback](bcos::Error::Ptr _error) {
+                if (_callback)
+                {
+                    _callback(std::move(_error));
+                }
+            });
+        if (!ret)
+        {
+            return;
+        }
         auto tarsGroupInfo = toTarsGroupInfo(_groupInfo);
         m_proxy->async_asyncNotifyGroupInfo(new Callback(_callback), tarsGroupInfo);
     }
@@ -148,6 +170,17 @@ public:
         private:
             std::function<void(bcos::Error::Ptr&&, bcos::bytesPointer)> m_callback;
         };
+        auto ret = checkConnection(
+            c_moduleName, "asyncNotifyAMOPMessage", m_proxy, [_callback](bcos::Error::Ptr _error) {
+                if (_callback)
+                {
+                    _callback(std::move(_error), nullptr);
+                }
+            });
+        if (!ret)
+        {
+            return;
+        }
         vector<tars::Char> request(_data.begin(), _data.end());
         m_proxy->async_asyncNotifyAMOPMessage(new Callback(_callback), _type, _topic, request);
     }
@@ -160,6 +193,7 @@ protected:
 
 private:
     bcostars::RpcServicePrx m_proxy;
+    std::string const c_moduleName = "RpcServiceClient";
 };
 
 }  // namespace bcostars

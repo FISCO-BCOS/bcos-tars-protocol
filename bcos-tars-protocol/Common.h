@@ -29,6 +29,7 @@
 #include <bcos-framework/interfaces/multigroup/ChainNodeInfoFactory.h>
 #include <bcos-framework/interfaces/multigroup/GroupInfoFactory.h>
 #include <bcos-framework/libutilities/Common.h>
+#include <tarscpp/servant/Application.h>
 #include <tarscpp/tup/Tars.h>
 #include <cstdint>
 #include <functional>
@@ -248,5 +249,25 @@ inline bcostars::LedgerConfig toTarsLedgerConfig(bcos::ledger::LedgerConfig::Ptr
     // set observerNodeList
     ledgerConfig.observerNodeList = toTarsConsensusNodeList(_ledgerConfig->observerNodeList());
     return ledgerConfig;
+}
+
+template <typename T>
+bool checkConnection(std::string const& _module, std::string const& _func, T prx,
+    std::function<void(bcos::Error::Ptr)> _errorCallback)
+{
+    std::vector<tars::EndpointInfo> activeEndPoints;
+    std::vector<tars::EndpointInfo> nactiveEndPoints;
+    prx->tars_endpointsAll(activeEndPoints, nactiveEndPoints);
+    if (activeEndPoints.size() > 0)
+    {
+        return true;
+    }
+    if (_errorCallback)
+    {
+        std::string errorMessage =
+            _module + " calls interface " + _func + " failed for empty connection";
+        _errorCallback(std::make_shared<bcos::Error>(-1, errorMessage));
+    }
+    return false;
 }
 }  // namespace bcostars
