@@ -100,8 +100,8 @@ public:
     bcostars::TransactionSubmitResult const& inner() { return *m_inner(); }
 
 private:
-    std::function<bcostars::TransactionSubmitResult*()> m_inner;
     bcos::crypto::CryptoSuite::Ptr m_cryptoSuite;
+    std::function<bcostars::TransactionSubmitResult*()> m_inner;
 };
 }  // namespace protocol
 }  // namespace bcostars

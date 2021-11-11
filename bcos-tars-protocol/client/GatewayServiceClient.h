@@ -83,46 +83,53 @@ public:
             std::vector<char>(_payload.begin(), _payload.end()));
     }
 
-    void asyncGetPeers(bcos::gateway::PeerRespFunc _peerRespFunc) override
+    void asyncGetPeers(std::function<void(
+            bcos::Error::Ptr, bcos::gateway::GatewayInfo::Ptr, bcos::gateway::GatewayInfosPtr)>
+            _callback) override
     {
         class Callback : public bcostars::GatewayServicePrxCallback
         {
         public:
-            Callback(bcos::gateway::PeerRespFunc callback) : m_callback(callback) {}
+            Callback(std::function<void(bcos::Error::Ptr, bcos::gateway::GatewayInfo::Ptr,
+                    bcos::gateway::GatewayInfosPtr)>
+                    callback)
+              : m_callback(callback)
+            {}
 
-            void callback_asyncGetPeers(
-                const bcostars::Error& ret, const std::string& _peers) override
+            void callback_asyncGetPeers(const bcostars::Error& ret,
+                const bcostars::GatewayInfo& _localInfo,
+                const vector<bcostars::GatewayInfo>& _peers) override
             {
-                m_callback(toBcosError(ret), _peers);
+                auto localGatewayInfo = fromTarsGatewayInfo(_localInfo);
+                auto peersGatewayInfos = std::make_shared<bcos::gateway::GatewayInfos>();
+                for (auto const& peerNodeInfo : _peers)
+                {
+                    peersGatewayInfos->emplace_back(fromTarsGatewayInfo(peerNodeInfo));
+                }
+                m_callback(toBcosError(ret), localGatewayInfo, peersGatewayInfos);
             }
             void callback_asyncGetPeers_exception(tars::Int32 ret) override
             {
-                m_callback(toBcosError(ret), "");
+                m_callback(toBcosError(ret), nullptr, nullptr);
             }
 
         private:
-            bcos::gateway::PeerRespFunc m_callback;
+            std::function<void(
+                bcos::Error::Ptr, bcos::gateway::GatewayInfo::Ptr, bcos::gateway::GatewayInfosPtr)>
+                m_callback;
         };
         auto ret = checkConnection(
-            c_moduleName, "asyncGetPeers", m_proxy, [_peerRespFunc](bcos::Error::Ptr _error) {
-                if (_peerRespFunc)
+            c_moduleName, "asyncGetPeers", m_proxy, [_callback](bcos::Error::Ptr _error) {
+                if (_callback)
                 {
-                    _peerRespFunc(_error, "");
+                    _callback(_error, nullptr, nullptr);
                 }
             });
         if (!ret)
         {
             return;
         }
-        auto t1 = std::chrono::high_resolution_clock::now();
-        GATEWAYCLIENT_LOG(DEBUG) << LOG_BADGE("asyncGetPeers") << LOG_DESC("request");
-        m_proxy->async_asyncGetPeers(
-            new Callback([_peerRespFunc, t1](bcos::Error::Ptr _error, const std::string& _peers) {
-                auto t2 = std::chrono::high_resolution_clock::now();
-                GATEWAYCLIENT_LOG(DEBUG) << LOG_BADGE("asyncGetPeers") << LOG_KV("response", _peers)
-                                         << LOG_KV("cost", (t2 - t1).count());
-                _peerRespFunc(_error, _peers);
-            }));
+        m_proxy->async_asyncGetPeers(new Callback(_callback));
     }
 
     void asyncSendMessageByNodeIDs(const std::string& _groupID, bcos::crypto::NodeIDPtr _srcNodeID,
