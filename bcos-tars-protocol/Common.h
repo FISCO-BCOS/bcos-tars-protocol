@@ -20,11 +20,13 @@
 
 #pragma once
 
+#include "bcos-tars-protocol/tars/GatewayInfo.h"
 #include "bcos-tars-protocol/tars/GroupInfo.h"
 #include "bcos-tars-protocol/tars/LedgerConfig.h"
 #include <bcos-framework/interfaces/consensus/ConsensusNode.h>
 #include <bcos-framework/interfaces/crypto/Hash.h>
 #include <bcos-framework/interfaces/crypto/KeyFactory.h>
+#include <bcos-framework/interfaces/gateway/GatewayTypeDef.h>
 #include <bcos-framework/interfaces/ledger/LedgerConfig.h>
 #include <bcos-framework/interfaces/multigroup/ChainNodeInfoFactory.h>
 #include <bcos-framework/interfaces/multigroup/GroupInfoFactory.h>
@@ -249,6 +251,70 @@ inline bcostars::LedgerConfig toTarsLedgerConfig(bcos::ledger::LedgerConfig::Ptr
     // set observerNodeList
     ledgerConfig.observerNodeList = toTarsConsensusNodeList(_ledgerConfig->observerNodeList());
     return ledgerConfig;
+}
+
+inline bcostars::P2PInfo toTarsP2PInfo(bcos::gateway::P2PInfo const& _p2pInfo)
+{
+    bcostars::P2PInfo tarsP2PInfo;
+    tarsP2PInfo.p2pID = _p2pInfo.p2pID;
+    tarsP2PInfo.agencyName = _p2pInfo.agencyName;
+    tarsP2PInfo.nodeName = _p2pInfo.nodeName;
+    tarsP2PInfo.host = _p2pInfo.nodeIPEndpoint.address();
+    tarsP2PInfo.port = _p2pInfo.nodeIPEndpoint.port();
+    return tarsP2PInfo;
+}
+
+inline bcostars::GroupNodeIDInfo toTarsNodeIDInfo(
+    std::string const& _groupID, std::set<std::string> const& _nodeIDList)
+{
+    GroupNodeIDInfo groupNodeIDInfo;
+    groupNodeIDInfo.groupID = _groupID;
+    groupNodeIDInfo.nodeIDList = std::vector<std::string>(_nodeIDList.begin(), _nodeIDList.end());
+    return groupNodeIDInfo;
+}
+inline bcostars::GatewayInfo toTarsGatewayInfo(bcos::gateway::GatewayInfo::Ptr _bcosGatewayInfo)
+{
+    bcostars::GatewayInfo tarsGatewayInfo;
+    if (!_bcosGatewayInfo)
+    {
+        return tarsGatewayInfo;
+    }
+    tarsGatewayInfo.p2pInfo = toTarsP2PInfo(_bcosGatewayInfo->p2pInfo());
+    auto nodeIDList = _bcosGatewayInfo->nodeIDInfo();
+    std::vector<GroupNodeIDInfo> tarsNodeIDInfos;
+    for (auto const& it : nodeIDList)
+    {
+        tarsNodeIDInfos.emplace_back(toTarsNodeIDInfo(it.first, it.second));
+    }
+    tarsGatewayInfo.nodeIDInfo = tarsNodeIDInfos;
+    return tarsGatewayInfo;
+}
+
+// Note: use struct here maybe Inconvenient to override
+inline bcos::gateway::P2PInfo toBcosP2PNodeInfo(bcostars::P2PInfo const& _tarsP2pInfo)
+{
+    bcos::gateway::P2PInfo p2pInfo;
+    p2pInfo.p2pID = _tarsP2pInfo.p2pID;
+    p2pInfo.agencyName = _tarsP2pInfo.agencyName;
+    p2pInfo.nodeName = _tarsP2pInfo.nodeName;
+    p2pInfo.nodeIPEndpoint = bcos::gateway::NodeIPEndpoint(_tarsP2pInfo.host, _tarsP2pInfo.port);
+    return p2pInfo;
+}
+
+inline bcos::gateway::GatewayInfo::Ptr fromTarsGatewayInfo(bcostars::GatewayInfo _tarsGatewayInfo)
+{
+    auto bcosGatewayInfo = std::make_shared<bcos::gateway::GatewayInfo>();
+    auto p2pInfo = toBcosP2PNodeInfo(_tarsGatewayInfo.p2pInfo);
+    std::unordered_map<std::string, std::set<std::string>> nodeIDInfos;
+    for (auto const& it : _tarsGatewayInfo.nodeIDInfo)
+    {
+        auto const& nodeIDListInfo = it.nodeIDList;
+        nodeIDInfos[it.groupID] =
+            std::set<std::string>(nodeIDListInfo.begin(), nodeIDListInfo.end());
+    }
+    bcosGatewayInfo->setP2PInfo(std::move(p2pInfo));
+    bcosGatewayInfo->setNodeIDInfo(std::move(nodeIDInfos));
+    return bcosGatewayInfo;
 }
 
 template <typename T>

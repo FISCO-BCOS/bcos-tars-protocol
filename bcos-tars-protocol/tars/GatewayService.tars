@@ -1,6 +1,6 @@
 #include "CommonProtocol.tars"
 #include "GroupInfo.tars"
-
+#include "GatewayInfo.tars"
 module bcostars
 {
     interface GatewayService
@@ -13,7 +13,8 @@ module bcostars
 
         Error asyncSendBroadcastMessage(
             string groupID, vector<byte> srcNodeID, vector<byte> payload);
-        Error asyncGetPeers(out string peers);
+        Error asyncGetPeers(out GatewayInfo localInfo, out vector<GatewayInfo> peers);
+
         Error asyncGetNodeIDs(string groupID, out vector<vector<byte>> nodeIDs);
 
         Error asyncNotifyGroupInfo(GroupInfo groupInfo);
