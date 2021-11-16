@@ -75,40 +75,6 @@ public:
         m_proxy->async_asyncNotifyBlockNumber(
             new Callback(_callback), _groupID, _nodeName, _blockNumber);
     }
-
-    // TODO: remove this
-    virtual void asyncNotifyTransactionResult(std::string const& _rpcID,
-        const std::string_view& groupID, bcos::crypto::HashType txHash,
-        bcos::protocol::TransactionSubmitResult::Ptr result) override
-    {
-        class Callback : public bcostars::RpcServicePrxCallback
-        {
-        public:
-            Callback(std::function<void(bcos::Error::Ptr&&)> callback) : m_callback(callback) {}
-
-            void callback_asyncNotifyTransactionResult(const bcostars::Error& ret) override
-            {
-                m_callback(toBcosError(ret));
-            }
-            void callback_asyncNotifyTransactionResult_exception(tars::Int32 ret) override
-            {
-                m_callback(toBcosError(ret));
-            }
-
-        private:
-            std::function<void(bcos::Error::Ptr&&)> m_callback;
-        };
-        std::function<void(bcos::Error::Ptr &&)> callback = [](bcos::Error::Ptr&&) {};
-        vector<tars::Char> txHashData(txHash.begin(), txHash.end());
-        auto tarsTxResult =
-            std::dynamic_pointer_cast<bcostars::protocol::TransactionSubmitResultImpl>(result);
-
-        auto servicePrx = Application::getCommunicator()->stringToProxy<RpcServicePrx>(_rpcID);
-        servicePrx->async_asyncNotifyTransactionResult(new Callback(callback), _rpcID,
-            std::string(groupID), txHashData, tarsTxResult->inner());
-    }
-
-
     void asyncNotifyGroupInfo(bcos::group::GroupInfo::Ptr _groupInfo,
         std::function<void(bcos::Error::Ptr&&)> _callback) override
     {
