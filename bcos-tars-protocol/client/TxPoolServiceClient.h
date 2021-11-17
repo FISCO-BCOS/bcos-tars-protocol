@@ -54,7 +54,10 @@ public:
             bcos::crypto::CryptoSuite::Ptr m_cryptoSuite;
         };
 
-        m_proxy->async_asyncSubmit(new Callback(_txSubmitCallback, m_cryptoSuite),
+        // set transaction timeout to 10min
+        // Note: tars_set_timeout unit is ms
+        m_proxy->tars_set_timeout(600000)->async_asyncSubmit(
+            new Callback(_txSubmitCallback, m_cryptoSuite),
             std::vector<char>(_tx->begin(), _tx->end()));
     }
 
