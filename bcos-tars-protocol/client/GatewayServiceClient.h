@@ -77,10 +77,11 @@ public:
         }
         auto srcNodeID = _srcNodeID->data();
         auto destNodeID = _dstNodeID->data();
-        m_proxy->async_asyncSendMessageByNodeID(new Callback(_errorRespFunc), _groupID,
-            std::vector<char>(srcNodeID.begin(), srcNodeID.end()),
-            std::vector<char>(destNodeID.begin(), destNodeID.end()),
-            std::vector<char>(_payload.begin(), _payload.end()));
+        m_proxy->tars_set_timeout(c_networkTimeout)
+            ->async_asyncSendMessageByNodeID(new Callback(_errorRespFunc), _groupID,
+                std::vector<char>(srcNodeID.begin(), srcNodeID.end()),
+                std::vector<char>(destNodeID.begin(), destNodeID.end()),
+                std::vector<char>(_payload.begin(), _payload.end()));
     }
 
     void asyncGetPeers(std::function<void(
@@ -282,7 +283,8 @@ public:
             return;
         }
         vector<tars::Char> tarsRequestData(_data.begin(), _data.end());
-        m_proxy->async_asyncSendMessageByTopic(new Callback(_respFunc), _topic, tarsRequestData);
+        m_proxy->tars_set_timeout(c_amopTimeout)
+            ->async_asyncSendMessageByTopic(new Callback(_respFunc), _topic, tarsRequestData);
     }
 
     void asyncSendBroadbastMessageByTopic(
@@ -374,5 +376,8 @@ private:
     bcostars::GatewayServicePrx m_proxy;
     bcos::crypto::KeyFactory::Ptr m_keyFactory;
     std::string const c_moduleName = "GatewayServiceClient";
+    // AMOP timeout 40s
+    const int c_amopTimeout = 40000;
+    const int c_networkTimeout = 40000;
 };
 }  // namespace bcostars
