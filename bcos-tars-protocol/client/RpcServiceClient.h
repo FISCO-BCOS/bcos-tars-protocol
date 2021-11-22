@@ -148,7 +148,8 @@ public:
             return;
         }
         vector<tars::Char> request(_data.begin(), _data.end());
-        m_proxy->async_asyncNotifyAMOPMessage(new Callback(_callback), _type, _topic, request);
+        m_proxy->tars_set_timeout(c_amopTimeout)
+            ->async_asyncNotifyAMOPMessage(new Callback(_callback), _type, _topic, request);
     }
 
     bcostars::RpcServicePrx prx() { return m_proxy; }
@@ -160,6 +161,8 @@ protected:
 private:
     bcostars::RpcServicePrx m_proxy;
     std::string const c_moduleName = "RpcServiceClient";
+    // AMOP timeout 40s
+    const int c_amopTimeout = 40000;
 };
 
 }  // namespace bcostars
