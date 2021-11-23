@@ -58,3 +58,33 @@ void SchedulerServiceClient::call(bcos::protocol::Transaction::Ptr _tx,
     auto tarsTx = std::dynamic_pointer_cast<bcostars::protocol::TransactionImpl>(_tx);
     m_prx->async_call(new Callback(_callback, m_cryptoSuite), tarsTx->inner());
 }
+
+void SchedulerServiceClient::getCode(
+    std::string_view contract, std::function<void(bcos::Error::Ptr, bcos::bytes)> callback)
+{
+    class Callback : public SchedulerServicePrxCallback
+    {
+    public:
+        Callback(std::function<void(bcos::Error::Ptr, bcos::bytes)> callback)
+          : m_callback(std::move(callback))
+        {}
+        ~Callback() override {}
+
+        void callback_getCode(const bcostars::Error& ret, const vector<tars::Char>& code) override
+        {
+            bcos::bytes outCode(code.begin(), code.end());
+
+            m_callback(toBcosError(ret), std::move(outCode));
+        }
+
+        void callback_getCode_exception(tars::Int32 ret) override
+        {
+            m_callback(toBcosError(ret), {});
+        }
+
+    private:
+        std::function<void(bcos::Error::Ptr, bcos::bytes)> m_callback;
+    };
+
+    m_prx->async_getCode(new Callback(std::move(callback)), std::string(contract));
+}

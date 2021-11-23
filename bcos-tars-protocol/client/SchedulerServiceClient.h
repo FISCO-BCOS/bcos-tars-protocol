@@ -78,6 +78,9 @@ public:
         BCOS_LOG(ERROR) << LOG_DESC("unimplemented method registerBlockNumberReceiver");
     }
 
+    void getCode(std::string_view contract,
+        std::function<void(bcos::Error::Ptr, bcos::bytes)> callback) override;
+
 private:
     SchedulerServicePrx m_prx;
     bcos::crypto::CryptoSuite::Ptr m_cryptoSuite;
