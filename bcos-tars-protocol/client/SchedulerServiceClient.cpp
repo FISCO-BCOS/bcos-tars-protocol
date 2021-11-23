@@ -74,7 +74,7 @@ void SchedulerServiceClient::getCode(
         {
             bcos::bytes outCode(code.begin(), code.end());
 
-            m_callback(toBcosError(ret), outCode);
+            m_callback(toBcosError(ret), std::move(outCode));
         }
 
         void callback_getCode_exception(tars::Int32 ret) override
