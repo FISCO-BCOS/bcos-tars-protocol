@@ -28,6 +28,7 @@ module bcostars {
         13 require vector<Signature> signatureList;
         14 require vector<long> consensusWeights;
     };
+
     struct Block {
         1 optional int version;
         2 optional int type;
