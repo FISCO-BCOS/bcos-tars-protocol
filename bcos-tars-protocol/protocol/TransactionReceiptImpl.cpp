@@ -31,40 +31,16 @@ void TransactionReceiptImpl::decode(bcos::bytesConstRef _receiptData)
     input.setBuffer((const char*)m_buffer.data(), m_buffer.size());
 
     m_inner()->readFrom(input);
-    for (auto& it : m_inner()->logEntries)
-    {
-        std::vector<bcos::h256> topics;
-        for (auto& topicIt : it.topic)
-        {
-            topics.emplace_back((const bcos::byte*)topicIt.data(), topicIt.size());
-        }
-        bcos::protocol::LogEntry logEntry(bcos::bytes(it.address.begin(), it.address.end()), topics,
-            bcos::bytes(it.data.begin(), it.data.end()));
-        m_logEntries.emplace_back(logEntry);
-    }
 }
 
 void TransactionReceiptImpl::encode(bcos::bytes& _encodedData) const
 {
     tars::TarsOutputStream<bcostars::protocol::BufferWriterByteVector> output;
-    m_inner()->logEntries.clear();
-    for (auto& it : m_logEntries)
-    {
-        bcostars::LogEntry logEntry;
-        logEntry.address.assign(it.address().begin(), it.address().end());
-        for (auto& topicIt : it.topics())
-        {
-            logEntry.topic.push_back(std::vector<char>(topicIt.begin(), topicIt.end()));
-        }
-        logEntry.data.assign(it.data().begin(), it.data().end());
-
-        m_inner()->logEntries.emplace_back(logEntry);
-    }
     m_inner()->writeTo(output);
     output.getByteBuffer().swap(_encodedData);
 }
 
-bcos::bytesConstRef TransactionReceiptImpl::encode(bool _onlyHashFieldData) const
+bcos::bytesConstRef TransactionReceiptImpl::encode(bool) const
 {
     if (m_buffer.empty())
     {
