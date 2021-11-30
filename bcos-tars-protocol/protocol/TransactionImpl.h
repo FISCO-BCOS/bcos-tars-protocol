@@ -65,6 +65,14 @@ public:
         return bcos::bytesConstRef(reinterpret_cast<const bcos::byte*>(m_inner()->signature.data()),
             m_inner()->signature.size());
     }
+    std::string_view sender() const override
+    {
+        return std::string_view(m_inner()->sender.data(), m_inner()->sender.size());
+    }
+    void forceSender(bcos::bytes const& _sender) const override
+    {
+        m_inner()->sender.assign(_sender.begin(), _sender.end());
+    }
 
     void setSignatureData(bcos::bytes& signature)
     {
@@ -81,6 +89,7 @@ public:
     void setInner(bcostars::Transaction inner) { *m_inner() = std::move(inner); }
 
     std::function<bcostars::Transaction*()> const& innerGetter() { return m_inner; }
+
 
 private:
     std::function<bcostars::Transaction*()> m_inner;

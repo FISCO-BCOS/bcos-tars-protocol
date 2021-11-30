@@ -73,6 +73,8 @@ BOOST_AUTO_TEST_CASE(transaction)
     auto tx = factory.createTransaction(0, to, input, nonce, 100, "testChain", "testGroup", 1000,
         cryptoSuite->signatureImpl()->generateKeyPair());
 
+    tx->verify();
+    BOOST_CHECK(!tx->sender().empty());
     auto buffer = tx->encode(false);
 
     auto decodedTx = factory.createTransaction(buffer, true);
@@ -87,6 +89,13 @@ BOOST_AUTO_TEST_CASE(transaction)
     BOOST_CHECK_EQUAL(tx->chainId(), "testChain");
     BOOST_CHECK_EQUAL(tx->groupId(), "testGroup");
     BOOST_CHECK_EQUAL(tx->importTime(), 1000);
+    BOOST_CHECK_EQUAL(decodedTx->sender(), tx->sender());
+
+    auto block = blockFactory->createBlock();
+    block->appendTransaction(std::move(decodedTx));
+
+    auto blockTx = block->transaction(0);
+    BOOST_CHECK_EQUAL(blockTx->sender(), tx->sender());
 }
 
 BOOST_AUTO_TEST_CASE(transactionMetaData)
