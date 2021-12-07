@@ -152,6 +152,40 @@ public:
             ->async_asyncNotifyAMOPMessage(new Callback(_callback), _type, _topic, request);
     }
 
+    void asyncNotifySubscribeTopic(
+        std::function<void(bcos::Error::Ptr&& _error)> _callback) override
+    {
+        class Callback : public bcostars::RpcServicePrxCallback
+        {
+        public:
+            Callback(std::function<void(bcos::Error::Ptr&&)> callback) : m_callback(callback) {}
+
+            void callback_asyncNotifySubscribeTopic(const bcostars::Error& ret) override
+            {
+                m_callback(toBcosError(ret));
+            }
+            void callback_asyncNotifySubscribeTopic_exception(tars::Int32 ret) override
+            {
+                m_callback(toBcosError(ret));
+            }
+
+        private:
+            std::function<void(bcos::Error::Ptr&&)> m_callback;
+        };
+        auto ret = checkConnection(c_moduleName, "asyncNotifySubscribeTopic", m_proxy,
+            [_callback](bcos::Error::Ptr _error) {
+                if (_callback)
+                {
+                    _callback(std::move(_error));
+                }
+            });
+        if (!ret)
+        {
+            return;
+        }
+        m_proxy->async_asyncNotifySubscribeTopic(new Callback(_callback));
+    }
+
     bcostars::RpcServicePrx prx() { return m_proxy; }
 
 protected:
