@@ -59,18 +59,18 @@ public:
             [m_receipt = bcostars::TransactionReceipt()]() mutable { return &m_receipt; });
         auto const& inner = transactionReceipt->innerGetter();
         // required: version
-        inner()->version = 0;
+        inner()->data.version = 0;
         // required: gasUsed
-        inner()->gasUsed = boost::lexical_cast<std::string>(_gasUsed);
+        inner()->data.gasUsed = boost::lexical_cast<std::string>(_gasUsed);
         // optional: contractAddress
-        inner()->contractAddress.assign(_contractAddress.begin(), _contractAddress.end());
+        inner()->data.contractAddress.assign(_contractAddress.begin(), _contractAddress.end());
         // required: status
-        inner()->status = _status;
+        inner()->data.status = _status;
         // optional: output
-        inner()->output.assign(_output.begin(), _output.end());
+        inner()->data.output.assign(_output.begin(), _output.end());
         transactionReceipt->setLogEntries(*_logEntries);
 
-        inner()->blockNumber = _blockNumber;
+        inner()->data.blockNumber = _blockNumber;
         return transactionReceipt;
     }
 

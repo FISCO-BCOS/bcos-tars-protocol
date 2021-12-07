@@ -41,18 +41,16 @@ void BlockImpl::encode(bcos::bytes& _encodeData) const
 
 bcos::protocol::BlockHeader::Ptr BlockImpl::blockHeader()
 {
-    bcos::ReadGuard l(*x_mutex);
     return std::make_shared<bcostars::protocol::BlockHeaderImpl>(
         m_transactionFactory->cryptoSuite(),
-        [inner = this->m_inner]() mutable { return &inner->blockHeader; }, x_mutex);
+        [inner = this->m_inner]() mutable { return &inner->blockHeader; });
 }
 
 bcos::protocol::BlockHeader::ConstPtr BlockImpl::blockHeaderConst() const
 {
-    bcos::ReadGuard l(*x_mutex);
     return std::make_shared<const bcostars::protocol::BlockHeaderImpl>(
         m_transactionFactory->cryptoSuite(),
-        [inner = this->m_inner]() { return &inner->blockHeader; }, x_mutex);
+        [inner = this->m_inner]() { return &inner->blockHeader; });
 }
 
 bcos::protocol::Transaction::ConstPtr BlockImpl::transaction(size_t _index) const

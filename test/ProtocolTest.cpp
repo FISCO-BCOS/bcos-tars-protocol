@@ -436,23 +436,21 @@ BOOST_AUTO_TEST_CASE(blockHeader)
 
     header->setParentInfo(std::move(parentInfoList));
 
-    for (auto flag : {false, true})
+    bytes buffer;
+    header->encode(buffer);
+
+    auto decodedHeader = blockHeaderFactory->createBlockHeader(buffer);
+
+    BOOST_CHECK_EQUAL(header->number(), decodedHeader->number());
+    BOOST_CHECK_EQUAL(header->timestamp(), decodedHeader->timestamp());
+    BOOST_CHECK_EQUAL(header->gasUsed(), decodedHeader->gasUsed());
+    BOOST_CHECK_EQUAL(header->parentInfo().size(), decodedHeader->parentInfo().size());
+    for (int i = 0; i < decodedHeader->parentInfo().size(); ++i)
     {
-        auto buffer = header->encode(flag);
-
-        auto decodedHeader = blockHeaderFactory->createBlockHeader(buffer);
-
-        BOOST_CHECK_EQUAL(header->number(), decodedHeader->number());
-        BOOST_CHECK_EQUAL(header->timestamp(), decodedHeader->timestamp());
-        BOOST_CHECK_EQUAL(header->gasUsed(), decodedHeader->gasUsed());
-        BOOST_CHECK_EQUAL(header->parentInfo().size(), decodedHeader->parentInfo().size());
-        for (int i = 0; i < decodedHeader->parentInfo().size(); ++i)
-        {
-            BOOST_CHECK_EQUAL(bcos::toString(header->parentInfo()[i].blockHash),
-                bcos::toString(decodedHeader->parentInfo()[i].blockHash));
-            BOOST_CHECK_EQUAL(
-                header->parentInfo()[i].blockNumber, decodedHeader->parentInfo()[i].blockNumber);
-        }
+        BOOST_CHECK_EQUAL(bcos::toString(header->parentInfo()[i].blockHash),
+            bcos::toString(decodedHeader->parentInfo()[i].blockHash));
+        BOOST_CHECK_EQUAL(
+            header->parentInfo()[i].blockNumber, decodedHeader->parentInfo()[i].blockNumber);
     }
 
     BOOST_CHECK_NO_THROW(header->setExtraData(header->extraData().toBytes()));

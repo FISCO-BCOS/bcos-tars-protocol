@@ -43,7 +43,7 @@ public:
         bcos::protocol::TransactionReceiptFactory::Ptr _receiptFactory)
       : bcos::protocol::Block(_transactionFactory, _receiptFactory),
         m_inner(std::make_shared<bcostars::Block>()),
-        x_mutex(std::make_shared<bcos::SharedMutex>())
+        x_mutex(std::make_shared<std::mutex>())
     {}
 
     ~BlockImpl() override{};
@@ -51,8 +51,8 @@ public:
     void decode(bcos::bytesConstRef _data, bool _calculateHash, bool _checkSig) override;
     void encode(bcos::bytes& _encodeData) const override;
 
-    int32_t version() const override { return m_inner->blockHeader.version; }
-    void setVersion(int32_t _version) override { m_inner->blockHeader.version = _version; }
+    int32_t version() const override { return m_inner->blockHeader.data.version; }
+    void setVersion(int32_t _version) override { m_inner->blockHeader.data.version = _version; }
 
     bcos::protocol::BlockType blockType() const override
     {
@@ -108,7 +108,7 @@ public:
 private:
     std::shared_ptr<bcostars::Block> m_inner;
     mutable bcos::protocol::NonceList m_nonceList;
-    std::shared_ptr<bcos::SharedMutex> x_mutex;
+    std::shared_ptr<std::mutex> x_mutex;
 };
 }  // namespace protocol
 }  // namespace bcostars
