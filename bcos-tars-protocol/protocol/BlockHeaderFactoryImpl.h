@@ -36,8 +36,7 @@ public:
     bcos::protocol::BlockHeader::Ptr createBlockHeader() override
     {
         return std::make_shared<bcostars::protocol::BlockHeaderImpl>(
-            m_cryptoSuite, [m_header = bcostars::BlockHeader()]() mutable { return &m_header; },
-            std::make_shared<std::mutex>());
+            m_cryptoSuite, [m_header = bcostars::BlockHeader()]() mutable { return &m_header; });
     }
     bcos::protocol::BlockHeader::Ptr createBlockHeader(bcos::bytes const& _data) override
     {

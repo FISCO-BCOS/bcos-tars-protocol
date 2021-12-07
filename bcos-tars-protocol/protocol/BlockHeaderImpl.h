@@ -39,14 +39,13 @@ public:
 
     BlockHeaderImpl() = delete;
 
-    BlockHeaderImpl(bcos::crypto::CryptoSuite::Ptr cryptoSuite,
-        std::function<bcostars::BlockHeader*()> inner, std::shared_ptr<std::mutex> _mutex)
-      : bcos::protocol::BlockHeader(cryptoSuite), m_inner(inner), x_mutex(_mutex)
+    BlockHeaderImpl(
+        bcos::crypto::CryptoSuite::Ptr cryptoSuite, std::function<bcostars::BlockHeader*()> inner)
+      : bcos::protocol::BlockHeader(cryptoSuite), m_inner(inner)
     {}
 
     void decode(bcos::bytesConstRef _data) override;
     void encode(bcos::bytes& _encodeData) const override;
-    bcos::bytesConstRef encode(bool _onlyHashFieldsData = false) const override;
     bcos::crypto::HashType hash() const override;
 
     void clear() override;
@@ -156,9 +155,7 @@ public:
 
 private:
     std::function<bcostars::BlockHeader*()> m_inner;
-
     mutable std::vector<bcos::protocol::ParentInfo> m_parentInfo;
-    std::shared_ptr<std::mutex> x_mutex;
 };
 }  // namespace protocol
 }  // namespace bcostars

@@ -19,6 +19,7 @@
  * @date 2021-04-20
  */
 #include "BlockHeaderImpl.h"
+#include "libutilities/Common.h"
 #include <tup/Tars.h>
 
 using namespace bcostars;
@@ -39,20 +40,15 @@ void BlockHeaderImpl::encode(bcos::bytes& _encodeData) const
     output.getByteBuffer().swap(_encodeData);
 }
 
-bcos::bytesConstRef BlockHeaderImpl::encode(bool) const
-{
-    BOOST_THROW_EXCEPTION(BCOS_ERROR(-1, "Unsupported method!"));
-}
-
 bcos::crypto::HashType BlockHeaderImpl::hash() const
 {
-    std::unique_lock<std::mutex> lock(*x_mutex);
     if (m_inner()->dataHash.empty())
     {
         tars::TarsOutputStream<bcostars::protocol::BufferWriterByteVector> output;
         m_inner()->data.writeTo(output);
 
         auto hash = m_cryptoSuite->hash(output.getByteBuffer());
+
         m_inner()->dataHash.assign(hash.begin(), hash.end());
     }
 
