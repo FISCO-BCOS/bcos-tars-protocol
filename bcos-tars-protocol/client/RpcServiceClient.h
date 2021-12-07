@@ -44,11 +44,11 @@ public:
         {}
         ~Callback() override {}
 
-        virtual void callback_asyncNotifyBlockNumber(const bcostars::Error& ret) override
+        void callback_asyncNotifyBlockNumber(const bcostars::Error& ret) override
         {
             m_callback(toBcosError(ret));
         }
-        virtual void callback_asyncNotifyBlockNumber_exception(tars::Int32 ret) override
+        void callback_asyncNotifyBlockNumber_exception(tars::Int32 ret) override
         {
             m_callback(toBcosError(ret));
         }

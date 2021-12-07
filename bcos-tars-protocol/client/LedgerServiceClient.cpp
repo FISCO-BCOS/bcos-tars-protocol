@@ -72,7 +72,7 @@ void LedgerServiceClient::asyncGetBlockNumber(
         {
             m_callback(toBcosError(ret), _blockNumber);
         }
-        virtual void callback_asyncGetBlockNumber_exception(tars::Int32 ret) override
+        void callback_asyncGetBlockNumber_exception(tars::Int32 ret) override
         {
             m_callback(toBcosError(ret), -1);
         }
