@@ -13,7 +13,7 @@ module bcostars {
         2 require vector<byte> signature;
     };
 
-    struct BlockHeader {
+    struct BlockHeaderData {
         2 require int version;
         3 require vector<ParentInfo> parentInfo;
         4 require vector<byte> txsRoot;
@@ -24,9 +24,14 @@ module bcostars {
         9 require long timestamp;
         10 require long sealer;
         11 require vector<vector<byte>> sealerList;
-        12 require vector<byte> extraData;
-        13 require vector<Signature> signatureList;
-        14 require vector<long> consensusWeights;
+        12 require vector<byte> extraData; 
+        13 require vector<long> consensusWeights;
+    };
+
+    struct BlockHeader {
+        1 optional BlockHeaderData data;
+        2 optional vector<byte> dataHash;
+        3 optional vector<Signature> signatureList;
     };
 
     struct Block {
@@ -39,5 +44,4 @@ module bcostars {
         7 optional vector<vector<byte>> receiptsHash;
         8 optional vector<string> nonceList;
     };
-   
 };

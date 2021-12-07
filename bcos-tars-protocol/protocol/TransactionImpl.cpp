@@ -61,7 +61,7 @@ bcos::bytesConstRef TransactionImpl::encode(bool _onlyHashFields) const
     }
 }
 
-bcos::crypto::HashType const& TransactionImpl::hash() const
+bcos::crypto::HashType TransactionImpl::hash() const
 {
     if (m_inner()->dataHash.empty())
     {
@@ -73,7 +73,7 @@ bcos::crypto::HashType const& TransactionImpl::hash() const
     return *(reinterpret_cast<bcos::crypto::HashType*>(m_inner()->dataHash.data()));
 }
 
-bcos::u256 const& TransactionImpl::nonce() const
+bcos::u256 TransactionImpl::nonce() const
 {
     if (!m_inner()->data.nonce.empty())
     {

@@ -19,13 +19,12 @@
  * @date 2021-04-20
  */
 #include "BlockHeaderImpl.h"
+#include <tup/Tars.h>
 
 using namespace bcostars;
 using namespace bcostars::protocol;
 void BlockHeaderImpl::decode(bcos::bytesConstRef _data)
 {
-    m_buffer.assign(_data.begin(), _data.end());
-
     tars::TarsInputStream<tars::BufferReader> input;
     input.setBuffer((const char*)_data.data(), _data.size());
 
@@ -40,36 +39,37 @@ void BlockHeaderImpl::encode(bcos::bytes& _encodeData) const
     output.getByteBuffer().swap(_encodeData);
 }
 
-bcos::bytesConstRef BlockHeaderImpl::encode(bool _onlyHashFieldsData) const
+bcos::bytesConstRef BlockHeaderImpl::encode(bool) const
 {
-    bcos::WriteGuard l(*x_mutex);
-    if (_onlyHashFieldsData)
+    BOOST_THROW_EXCEPTION(BCOS_ERROR(-1, "Unsupported method!"));
+}
+
+bcos::crypto::HashType BlockHeaderImpl::hash() const
+{
+    std::unique_lock<std::mutex> lock(*x_mutex);
+    if (m_inner()->dataHash.empty())
     {
-        vector<Signature> emptyList;
-        m_inner()->signatureList.swap(emptyList);
-        encode(m_buffer);
-        emptyList.swap(m_inner()->signatureList);
+        tars::TarsOutputStream<bcostars::protocol::BufferWriterByteVector> output;
+        m_inner()->data.writeTo(output);
+
+        auto hash = m_cryptoSuite->hash(output.getByteBuffer());
+        m_inner()->dataHash.assign(hash.begin(), hash.end());
     }
-    else
-    {
-        encode(m_buffer);
-    }
-    return bcos::ref(m_buffer);
+
+    return *(reinterpret_cast<const bcos::crypto::HashType*>(m_inner()->dataHash.data()));
 }
 
 void BlockHeaderImpl::clear()
 {
     m_inner()->resetDefautlt();
     m_parentInfo.clear();
-    m_gasUsed = 0;
-    m_buffer.clear();
 }
 
 gsl::span<const bcos::protocol::ParentInfo> BlockHeaderImpl::parentInfo() const
 {
     if (m_parentInfo.empty())
     {
-        for (auto const& it : m_inner()->parentInfo)
+        for (auto const& it : m_inner()->data.parentInfo)
         {
             bcos::protocol::ParentInfo parentInfo;
             parentInfo.blockNumber = it.blockNumber;
@@ -82,68 +82,68 @@ gsl::span<const bcos::protocol::ParentInfo> BlockHeaderImpl::parentInfo() const
     return gsl::span(m_parentInfo.data(), m_parentInfo.size());
 }
 
-bcos::crypto::HashType const& BlockHeaderImpl::txsRoot() const
+bcos::crypto::HashType BlockHeaderImpl::txsRoot() const
 {
-    if (!m_inner()->txsRoot.empty())
+    if (!m_inner()->data.txsRoot.empty())
     {
-        return *(reinterpret_cast<const bcos::crypto::HashType*>(m_inner()->txsRoot.data()));
+        return *(reinterpret_cast<const bcos::crypto::HashType*>(m_inner()->data.txsRoot.data()));
     }
-    return m_emptyHash;
+    return {};
 }
 
-bcos::crypto::HashType const& BlockHeaderImpl::stateRoot() const
+bcos::crypto::HashType BlockHeaderImpl::stateRoot() const
 {
-    if (!m_inner()->stateRoot.empty())
+    if (!m_inner()->data.stateRoot.empty())
     {
-        return *(reinterpret_cast<const bcos::crypto::HashType*>(m_inner()->stateRoot.data()));
+        return *(reinterpret_cast<const bcos::crypto::HashType*>(m_inner()->data.stateRoot.data()));
     }
-    return m_emptyHash;
+    return {};
 }
 
-bcos::crypto::HashType const& BlockHeaderImpl::receiptsRoot() const
+bcos::crypto::HashType BlockHeaderImpl::receiptsRoot() const
 {
-    if (!m_inner()->receiptRoot.empty())
+    if (!m_inner()->data.receiptRoot.empty())
     {
-        return *(reinterpret_cast<const bcos::crypto::HashType*>(m_inner()->receiptRoot.data()));
+        return *(
+            reinterpret_cast<const bcos::crypto::HashType*>(m_inner()->data.receiptRoot.data()));
     }
-    return m_emptyHash;
+    return {};
 }
 
-bcos::u256 const& BlockHeaderImpl::gasUsed() const
+bcos::u256 BlockHeaderImpl::gasUsed() const
 {
-    if (!m_inner()->gasUsed.empty())
+    if (!m_inner()->data.gasUsed.empty())
     {
-        m_gasUsed = boost::lexical_cast<bcos::u256>(m_inner()->gasUsed);
+        return boost::lexical_cast<bcos::u256>(m_inner()->data.gasUsed);
     }
-    return m_gasUsed;
+    return {};
 }
 
 void BlockHeaderImpl::setParentInfo(gsl::span<const bcos::protocol::ParentInfo> const& _parentInfo)
 {
     m_parentInfo.clear();
-    m_inner()->parentInfo.clear();
+    m_inner()->data.parentInfo.clear();
     for (auto& it : _parentInfo)
     {
         ParentInfo parentInfo;
         parentInfo.blockNumber = it.blockNumber;
         parentInfo.blockHash.assign(it.blockHash.begin(), it.blockHash.end());
-        m_inner()->parentInfo.emplace_back(parentInfo);
+        m_inner()->data.parentInfo.emplace_back(parentInfo);
     }
 }
 
 void BlockHeaderImpl::setSealerList(gsl::span<const bcos::bytes> const& _sealerList)
 {
-    m_inner()->sealerList.clear();
+    m_inner()->data.sealerList.clear();
     for (auto const& it : _sealerList)
     {
-        m_inner()->sealerList.push_back(std::vector<char>(it.begin(), it.end()));
+        m_inner()->data.sealerList.push_back(std::vector<char>(it.begin(), it.end()));
     }
 }
 
 void BlockHeaderImpl::setSignatureList(
     gsl::span<const bcos::protocol::Signature> const& _signatureList)
 {
-    bcos::WriteGuard l(*x_mutex);
     for (auto& it : _signatureList)
     {
         Signature signature;

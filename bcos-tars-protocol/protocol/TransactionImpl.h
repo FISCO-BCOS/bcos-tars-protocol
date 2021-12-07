@@ -50,12 +50,12 @@ public:
     bcos::bytesConstRef encode(bool _onlyHashFields = false) const override;
     bcos::bytes takeEncoded() override { return std::move(m_buffer); }
 
-    bcos::crypto::HashType const& hash() const override;
+    bcos::crypto::HashType hash() const override;
     int32_t version() const override { return m_inner()->data.version; }
     std::string_view chainId() const override { return m_inner()->data.chainID; }
     std::string_view groupId() const override { return m_inner()->data.groupID; }
     int64_t blockLimit() const override { return m_inner()->data.blockLimit; }
-    bcos::u256 const& nonce() const override;
+    bcos::u256 nonce() const override;
     std::string_view to() const override { return m_inner()->data.to; }
     bcos::bytesConstRef input() const override;
     int64_t importTime() const override { return m_inner()->importTime; }
@@ -69,7 +69,7 @@ public:
     {
         return std::string_view(m_inner()->sender.data(), m_inner()->sender.size());
     }
-    void forceSender(bcos::bytes const& _sender) const override
+    void forceSender(bcos::bytes _sender) const override
     {
         m_inner()->sender.assign(_sender.begin(), _sender.end());
     }

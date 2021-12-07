@@ -25,10 +25,8 @@ using namespace bcostars::protocol;
 
 void TransactionReceiptImpl::decode(bcos::bytesConstRef _receiptData)
 {
-    m_buffer.assign(_receiptData.begin(), _receiptData.end());
-
     tars::TarsInputStream<tars::BufferReader> input;
-    input.setBuffer((const char*)m_buffer.data(), m_buffer.size());
+    input.setBuffer((const char*)_receiptData.data(), _receiptData.size());
 
     m_inner()->readFrom(input);
 }
@@ -42,18 +40,27 @@ void TransactionReceiptImpl::encode(bcos::bytes& _encodedData) const
 
 bcos::bytesConstRef TransactionReceiptImpl::encode(bool) const
 {
-    if (m_buffer.empty())
-    {
-        encode(m_buffer);
-    }
-    return bcos::ref(m_buffer);
+    BOOST_THROW_EXCEPTION(BCOS_ERROR(-1, "Unsupported method!"));
 }
 
-bcos::u256 const& TransactionReceiptImpl::gasUsed() const
+bcos::crypto::HashType TransactionReceiptImpl::hash() const
 {
-    if (!m_inner()->gasUsed.empty())
+    if (m_inner()->dataHash.empty())
     {
-        m_gasUsed = boost::lexical_cast<bcos::u256>(m_inner()->gasUsed);
+        tars::TarsOutputStream<bcostars::protocol::BufferWriterByteVector> output;
+        m_inner()->data.writeTo(output);
+        auto hash = m_cryptoSuite->hash(output.getByteBuffer());
+        m_inner()->dataHash.assign(hash.begin(), hash.end());
     }
-    return m_gasUsed;
+
+    return *(reinterpret_cast<const bcos::crypto::HashType*>(m_inner()->dataHash.data()));
+}
+
+bcos::u256 TransactionReceiptImpl::gasUsed() const
+{
+    if (!m_inner()->data.gasUsed.empty())
+    {
+        return boost::lexical_cast<bcos::u256>(m_inner()->data.gasUsed);
+    }
+    return {};
 }
